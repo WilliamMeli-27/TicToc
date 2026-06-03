@@ -310,7 +310,6 @@ export const ResetPasswordScreen: React.FC<ResetPasswordScreenProps> = ({
                   ) : (
                     <>
                       <Text style={styles.submitButtonText}>Send Reset Link</Text>
-                      <Text style={styles.submitButtonIcon}>→</Text>
                     </>
                   )}
                 </Pressable>
@@ -324,7 +323,6 @@ export const ResetPasswordScreen: React.FC<ResetPasswordScreenProps> = ({
                 onPress={onBackToLogin}
                 disabled={isLoading}
               >
-                <Text style={styles.backButtonIcon}>←</Text>
                 <Text style={styles.backButtonText}>Back to Login</Text>
               </Pressable>
             </View>
@@ -342,7 +340,6 @@ export const ResetPasswordScreen: React.FC<ResetPasswordScreenProps> = ({
           },
         ]}
       >
-        <Text style={styles.toastIcon}>✓</Text>
         <Text style={styles.toastText}>Link sent! Check your inbox.</Text>
       </Animated.View>
     </SafeAreaView>
@@ -510,7 +507,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     gap: 12,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1),
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   inputContainerError: {
     borderColor: '#ffb4ab',

@@ -12,23 +12,10 @@ import {
   Platform,
   ScrollView,
 } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
-import {sign-up} from '../src/auth/sign-up';
-import {forget-password} '../src/auth/forget-password';
-import {verification-code} '../src/auth/verification-code';
 
-const { width, height } = Dimensions.get('window');
+
+const { width } = Dimensions.get('window');
 const isSmallScreen = width < 380;
-
-// Types
-interface Particle {
-  x: number;
-  y: number;
-  size: number;
-  speedX: number;
-  speedY: number;
-  opacity: number;
-}
 
 interface LoginScreenProps {
   onLoginSuccess?: (email: string, password: string) => void;
@@ -54,9 +41,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
   const buttonGlowAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
-  // Background animation for mouse tracking (simulated with touch)
-  const [touchPosition, setTouchPosition] = useState({ x: 0, y: 0 });
-
   useEffect(() => {
     // Entrance animation
     Animated.timing(fadeAnim, {
@@ -80,7 +64,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
         }),
       ])
     ).start();
-  }, []);
+  }, [buttonGlowAnim, fadeAnim]);
 
   // Handle login submission
   const handleLogin = () => {
@@ -113,11 +97,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
   };
 
   // Handle touch for background effect
-  const handleTouchMove = (event: any) => {
-    const { locationX, locationY } = event.nativeEvent;
-    setTouchPosition({ x: locationX, y: locationY });
-  };
-
   // Toggle password visibility
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -146,7 +125,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
-          onTouchMove={handleTouchMove}
         >
           {/* Background gradient effect */}
           <View style={styles.backgroundGradients}>
@@ -216,7 +194,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
                   ) : (
                     <>
                       <Text style={styles.loginButtonText}>Login</Text>
-                      <Text style={styles.loginButtonIcon}>→</Text>
                     </>
                   )}
                 </Pressable>
@@ -461,32 +438,5 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
-
-// Particle background component
-export const ParticleBackground: React.FC = () => {
-  const canvasRef = useRef<any>(null);
-  const [particles, setParticles] = useState<Particle[]>([]);
-
-  useEffect(() => {
-    const initParticles = () => {
-      const newParticles: Particle[] = [];
-      for (let i = 0; i < 50; i++) {
-        newParticles.push({
-          x: Math.random() * width,
-          y: Math.random() * height,
-          size: Math.random() * 1.5 + 0.5,
-          speedX: (Math.random() - 0.5) * 0.3,
-          speedY: (Math.random() - 0.5) * 0.3,
-          opacity: Math.random() * 0.5,
-        });
-      }
-      setParticles(newParticles);
-    };
-
-    initParticles();
-  }, []);
-
-  return null; // For React Native, consider using react-native-canvas or remove
-};
 
 export default LoginScreen;

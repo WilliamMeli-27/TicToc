@@ -1,5 +1,3 @@
-//import { NewAppScreen } from '@react-native/new-app-screen';
-
 import React, { useState, useEffect, useRef } from 'react';
 import {
   SafeAreaView,
@@ -14,6 +12,7 @@ import {
 import { BottomNavigationBar, TabType } from './src/navigation/navigation-bar';
 
 export type AppTabType = TabType | 'live' | 'video-edit';
+export type AuthScreenType = 'signup' | 'login' | 'forget-password' | 'verification-code';
 
 const { width } = Dimensions.get('window');
 const isSmallScreen = width < 380;
@@ -502,7 +501,63 @@ export const TouchSplashScreen: React.FC<SplashScreenProps> = (props) => {
 
 const App: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [activeTab, setActiveTab] = useState<AppTabType>('home');
+  const [authScreen, setAuthScreen] = useState<AuthScreenType>('signup');
+
+  const handleAuthSuccess = () => {
+    setIsAuthenticated(true);
+    setActiveTab('home');
+  };
+
+  const renderAuthScreen = () => {
+    switch (authScreen) {
+      case 'login': {
+        const mod = require('./src/auth/login');
+        const LoginScreen = mod.LoginScreen ?? mod.default;
+        return (
+          <LoginScreen
+            onLoginSuccess={handleAuthSuccess}
+            onForgotPassword={() => setAuthScreen('forget-password')}
+            onSignUp={() => setAuthScreen('signup')}
+          />
+        );
+      }
+      case 'forget-password': {
+        const mod = require('./src/auth/forget-password');
+        const ResetPasswordScreen = mod.ResetPasswordScreen ?? mod.default;
+        return (
+          <ResetPasswordScreen
+            onBackToLogin={() => setAuthScreen('login')}
+            onResetSuccess={() => setAuthScreen('login')}
+          />
+        );
+      }
+      case 'verification-code': {
+        const mod = require('./src/auth/verification-code');
+        const OTPScreen = mod.OTPScreen ?? mod.default;
+        return (
+          <OTPScreen
+            onVerify={async () => true}
+            onResendCode={async () => true}
+            onBack={() => setAuthScreen('login')}
+            onSuccess={handleAuthSuccess}
+          />
+        );
+      }
+      case 'signup':
+      default: {
+        const mod = require('./src/auth/sign-up');
+        const SignUpScreen = mod.SignUpScreen ?? mod.default;
+        return (
+          <SignUpScreen
+            onLogin={() => setAuthScreen('login')}
+            onSignUpSuccess={handleAuthSuccess}
+          />
+        );
+      }
+    }
+  };
 
   const renderCurrentScreen = () => {
     const handleLivePress = () => setActiveTab('live');
@@ -559,13 +614,21 @@ const App: React.FC = () => {
     }
   };
 
-  return isLoaded ? (
+  if (!isLoaded) {
+    return <SplashScreen onLoadingComplete={() => setIsLoaded(true)} />;
+  }
+
+  if (!isAuthenticated) {
+    return <View style={styles.appContainer}>{renderAuthScreen()}</View>;
+  }
+
+  return (
     <View style={styles.appContainer}>
       {renderCurrentScreen()}
-      {activeTab !== 'live' && <BottomNavigationBar activeTab={activeTab} onTabPress={setActiveTab} />}
+      {activeTab !== 'live' && activeTab !== 'video-edit' && (
+        <BottomNavigationBar activeTab={activeTab as TabType} onTabPress={setActiveTab} />
+      )}
     </View>
-  ) : (
-    <SplashScreen onLoadingComplete={() => setIsLoaded(true)} />
   );
 };
 

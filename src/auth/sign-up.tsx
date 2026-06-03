@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   SafeAreaView,
   View,
@@ -12,22 +12,16 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
-import {login} from '../src/auth/login';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 const isSmallScreen = width < 380;
 
-// Types
-interface Particle {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  size: number;
-  color: string;
-  alpha: number;
-}
+const STRENGTH_COLOR_STYLES = [
+  { backgroundColor: '#FFB4AB', shadowColor: 'rgba(255, 180, 171, 0.4)' },
+  { backgroundColor: '#FF4B89', shadowColor: 'rgba(255, 75, 137, 0.4)' },
+  { backgroundColor: '#A2EF00', shadowColor: 'rgba(162, 239, 0, 0.4)' },
+  { backgroundColor: '#00F0FF', shadowColor: 'rgba(0, 240, 255, 0.4)' },
+];
 
 interface StrengthConfig {
   color: string;
@@ -35,7 +29,12 @@ interface StrengthConfig {
   shadowColor: string;
 }
 
-export const JoinPulseScreen: React.FC = () => {
+interface SignUpScreenProps {
+  onLogin?: () => void;
+  onSignUpSuccess?: (email: string, password: string) => void;
+}
+
+export const SignUpScreen: React.FC<SignUpScreenProps> = ({ onLogin, onSignUpSuccess }) => {
   // Form state
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -47,7 +46,6 @@ export const JoinPulseScreen: React.FC = () => {
   
   // Animation values
   const scaleAnim = useRef(new Animated.Value(1)).current;
-  const glowAnim = useRef(new Animated.Value(0)).current;
 
   // Password strength configuration
   const strengthConfig: StrengthConfig[] = [
@@ -101,8 +99,8 @@ export const JoinPulseScreen: React.FC = () => {
     // Simulate API call
     setTimeout(() => {
       setIsLoading(false);
-      // Here you would navigate to next screen or show success
       console.log('Form submitted:', { fullName, email, username, password });
+      onSignUpSuccess?.(email, password);
     }, 1500);
   };
 
@@ -111,21 +109,14 @@ export const JoinPulseScreen: React.FC = () => {
     const segments = [];
     for (let i = 0; i < 4; i++) {
       const isActive = i < passwordStrength;
-      const activeColor = passwordStrength > 0 
-        ? strengthConfig[passwordStrength - 1]?.color 
-        : 'rgba(255, 255, 255, 0.1)';
-      
+      const activeSegmentStyle = passwordStrength > 0 ? STRENGTH_COLOR_STYLES[passwordStrength - 1] : undefined;
+
       segments.push(
         <View
           key={i}
           style={[
             styles.strengthSegment,
-            {
-              backgroundColor: isActive ? activeColor : 'rgba(255, 255, 255, 0.1)',
-              shadowColor: isActive && passwordStrength > 0 
-                ? strengthConfig[passwordStrength - 1]?.shadowColor 
-                : 'transparent',
-            },
+            isActive ? activeSegmentStyle : styles.strengthSegmentInactive,
           ]}
         />
       );
@@ -245,7 +236,6 @@ export const JoinPulseScreen: React.FC = () => {
                   ) : (
                     <>
                       <Text style={styles.submitButtonText}>Create Account</Text>
-                      <Text style={styles.submitIcon}>→</Text>
                     </>
                   )}
                 </Pressable>
@@ -256,7 +246,7 @@ export const JoinPulseScreen: React.FC = () => {
             <View style={styles.footer}>
               <Text style={styles.footerText}>
                 Already have an account?{' '}
-                <Text style={styles.footerLink}>Log In</Text>
+                <Text style={styles.footerLink} onPress={onLogin}>Log In</Text>
               </Text>
             </View>
           </View>
@@ -282,7 +272,6 @@ const styles = StyleSheet.create({
   },
   glassCard: {
     backgroundColor: 'rgba(27, 27, 27, 0.4)',
-    backdropFilter: 'blur(24px)',
     borderRadius: 24,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.08)',
@@ -422,33 +411,4 @@ const styles = StyleSheet.create({
   },
 });
 
-// Particle background component (optional enhancement)
-export const ParticleBackground: React.FC = () => {
-  const canvasRef = useRef<any>(null);
-  const [particles, setParticles] = useState<Particle[]>([]);
-
-  useEffect(() => {
-    // Initialize particles
-    const initParticles = () => {
-      const newParticles: Particle[] = [];
-      for (let i = 0; i < 60; i++) {
-        newParticles.push({
-          x: Math.random() * width,
-          y: Math.random() * height,
-          vx: (Math.random() - 0.5) * 0.5,
-          vy: (Math.random() - 0.5) * 0.5,
-          size: Math.random() * 2,
-          color: Math.random() > 0.5 ? '#00F0FF' : '#FF4B89',
-          alpha: Math.random() * 0.5,
-        });
-      }
-      setParticles(newParticles);
-    };
-
-    initParticles();
-  }, []);
-
-  return null; // For React Native, you'd need a different approach for canvas
-};
-
-export default JoinPulseScreen;
+export default SignUpScreen;
