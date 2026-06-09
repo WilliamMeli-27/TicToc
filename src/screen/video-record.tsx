@@ -13,11 +13,9 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { Camera, useCameraDevices } from 'react-native-vision-camera';
+import { ModeType, cameraAssets } from './CameraItems';
 
-const { width: _width } = Dimensions.get('window');
-
-// Types
-type ModeType = 'VIDEO' | 'PHOTO' | 'LIVE';
+const { width: _width, height: _height } = Dimensions.get('window');
 
 interface CameraScreenProps {
   onOpenEditor?: () => void;
@@ -205,7 +203,7 @@ export const CameraScreen: React.FC<CameraScreenProps> = ({ onOpenEditor }) => {
       ) : (
         <View style={styles.cameraPreview}>
           <Image 
-            source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBP5Ltm1FIdNFOyQ1uwCQ77LXtlCz2syJWLrDKC_120Z9G6pQHD1LI_m4wzDhDQukYBKsxCrxE80yYUYp4PBSiz25959T_YuIgGQbg80hXSyLSx0Ad3eKNlAiJeWCjBx_t9AMXCVXO0SwEI6fjrm7LHPMMl3ym24RRIGkw5Qo1GiSMWJeNGUx_KC6GH7nasbnAgpTkz6hQd-xILXFpBcwyPFdvtLQvrkJp-J2NQOi6Q5qkhTg3vEs7KN-qJeumI8GHMh2_bW5EBaouf' }}
+            source={{ uri: cameraAssets.fallback }}
             style={styles.fallbackImage}
             resizeMode="cover"
           />
@@ -281,7 +279,7 @@ export const CameraScreen: React.FC<CameraScreenProps> = ({ onOpenEditor }) => {
         <View style={styles.bottomLeft}>
           <Pressable style={styles.uploadButton}>
             <Image 
-              source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAuaxybhzqtOLqlf-DR-nXufXTAG1UsvXMPhi4uoWxinEJ35gRKi5ZbN7uf_5-jAISkiImQNSYz8G1GEMN2vgq9xIYaojW1DMYIzR-VGlCaTu50m_4_GTAXCy2OuOZmkeZEuOwMEVFx5-p3UIaFVru4FMTRoGLOEp3hgdSiS9SaChkVSk1ObLHXdJok8lsM3nB-viOgE7HjGhAF75JQ_FJdJGCu00pLbleAfBRw9gUG0cJ8ySe1N8ln2BChGSJHeGuOgkLrlx1Oin0S' }}
+              source={{ uri: cameraAssets.uploadPreview }}
               style={styles.uploadPreview}
             />
           </Pressable>

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import {
   SafeAreaView,
   View,
@@ -7,171 +7,24 @@ import {
   Pressable,
   StyleSheet,
   Dimensions,
-  Animated,
   FlatList,
-  Image,
   StatusBar,
   ScrollView,
   Platform,
 } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
 
-const { width } = Dimensions.get('window');
+import {
+  VideoItemType,
+  CATEGORIES,
+  mockChallenges,
+  mockVideos,
+  VideoItem,
+  ChallengeItem,
+} from './DiscoverItems';
+
+const { width, height: _height } = Dimensions.get('window');
 const isSmallScreen = width < 380;
 
-// Types
-interface Creator {
-  id: string;
-  username: string;
-  avatar: string;
-}
-
-interface VideoItem {
-  id: string;
-  thumbnail: string;
-  views: number;
-  creator: Creator;
-  aspectRatio: '9:16' | '9:12' | '9:14';
-}
-
-interface ChallengeItem {
-  id: string;
-  title: string;
-  participants: string;
-  thumbnail: string;
-  variant: 'cyan' | 'pink';
-}
-
-// Mock data
-const mockChallenges: ChallengeItem[] = [
-  {
-    id: '1',
-    title: '#CyberDance2024',
-    participants: '1.2M Participating',
-    thumbnail: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBCEUdLBWbYZ6dMYrehq0azz9IrDCjWz5kRtW0KepUQ2aTwFP5t6e5nxwHMMnkw_XociU7Xtp6fQtVfnkKpQ_0DYoAdgUAkdt6_L7xhzt_Q_NuANJbovnQzdXEsnooqYm9jtAo_w6T26RKfC7MCe-VNdD0zicvwUOHRnZct7yltSRdWC7jde4cL3THIo6eKqrp9Yl7eQa-759x0EwDvDDlFvWPqY0hhO9iwgJjcxSuH6gAZ7KD0cjorm22LtgNuDKlTppWdiQAZolQn',
-    variant: 'cyan',
-  },
-  {
-    id: '2',
-    title: '#RetroGamingVibe',
-    participants: '850K Participating',
-    thumbnail: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCLiznwNRn_-L4AfMzj5Z6AmcEXdmnuTaoA24inP46SMhlYb8xlf9TgnYKTmtDEsmH0p-LIxGUXYSAFrqsGeSi1J2uhNx_39bcw4PBRKyoLQdRa-PU4nzC5oFcQTfHc6LGe4H9qAFEUheHiAhGotB5h0tOlKxM_CZP9QEqcob2blNioQ8snbXXjh6gU2L1upolFQ0TXD1BvHcRRxSgIIm_1OIoz25EJIpaN9F9Wh5AJHG6k13g1MpaGTTRjKN7M525OhEeDJVJlIStV',
-    variant: 'pink',
-  },
-];
-
-const mockVideos: VideoItem[] = [
-  {
-    id: '1',
-    thumbnail: 'https://lh3.googleusercontent.com/aida-public/AB6AXuB6zQEh2NtjtUGwp0U5MHPa8gqo-1U4YoP0giD0-wzCWoTdJqXnZ4E2KwrJRkbQGFRDn3Q4pY_R8TZ1T2sTx6Isdnb-VG0oaaas62x8t1AATMYphZwaxG5e3p38r_faSY-RNhpPBhX1dVlJLYJPTXevd--0XUzfyAvMVj0k9-uJndX4pEQgPSQsJG__Ulcyt0TlsYnXoqp-Wft-a7QAgxUsQewY6jFXOw0TFUdJA1y_T_89fZCD-XteTa_sNaVagf4uB2XylY4lSo5X',
-    views: 4200000,
-    creator: {
-      id: 'c1',
-      username: '@alex_vibe',
-      avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuD2Q_-eQgH4KeVkDSqhXiZaE4AFLSZbkH_4zZUJDnUeGTedy79nFphNoP6ZA6OKZdFlzifMdHHsgDwvO8z2osfYS2sMRraAAjeq8bb091zxto0YezhqFzJAogXwpRu9hhHfhAC3380jiaIhKCoh4MGh8yZ5jSAt-U_78auaBnTJT4y_N8C9ZUCpLIdTwuTIwabxvNbIQVbU9uCbfPRfYHdzzLGyEqeMXxyv6mElGm3d-b1IgG4ozYvRKbSi0tsD_A1IuJfOYnusURE1',
-    },
-    aspectRatio: '9:16',
-  },
-  {
-    id: '2',
-    thumbnail: 'https://lh3.googleusercontent.com/aida-public/AB6AXuClfG5AQyHzoup8dUXnuRcFc1gzyOqst4S53gxr-s5OCRCEWsC779x5OWuO_AEPtvrPFVT4c_jgMwZNEHsSofEQxSA42xIHb3pjq61pvHMGkKQqEnHjUzGRKo_sh53d7sQURcNJufUL9862upCOyGty3lvsVGIFA0LpJVNzs72BMbGBjNvMmGD2yKWk4kVxZPlaFsYl8ebTNed1y1Zdr-clsBFPO-XuuD0sMys84q1yczwwthfEjEB0rb9IYh-35dVnwuu8eXHD6kz1',
-    views: 1800000,
-    creator: {
-      id: 'c2',
-      username: '@maya_dance',
-      avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCfcfivmbd7rcMceWmN1B4dsRAD-TfSlRLy42rlMdh3_Ff4Pk9CRmqxqvZgBwTz-MKkt4Imbv6mF1gWCei1ix4mI7cxWaBKbTVhLHLom9yS3erTTomeWWTTlHynBzOVb31NWHXTCATEquVRUglrr0RewzdgLI4R2LH0gtfppWPNTjgSHguxjkg6NpUsQ1eR0G_W-chhQqgLek1U1RcTcTjlaFwcOi9dyMXp9cBF8lSzuAyJCelEeCRNABDc1LtENodE4SB91gX29QWC',
-    },
-    aspectRatio: '9:12',
-  },
-  {
-    id: '3',
-    thumbnail: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCT4IRwp41raHvxw54FZTQnMFHBRCYNh6MqdcnU4GL4i4ZeH-3YdyitYBLRLULPImi1erBOwghJAXNctsDrcnFhuBmqs0zmkOnrQ-NPWMev4Lgu8-FsoAvAzWvA2jR_lIXglUlwEWCY0jPozDcn6GV8CFlQS9uR6L5--txrUpwXVruK5Visyt7r6WCedcESvNHO8xYxC-3mBg8mnhoTTcHAQ5L7woFU_nTo93ztJRRo_NhZi2EhbmGKYb9T58M-0YboHV4mX0erD4uR',
-    views: 890000,
-    creator: {
-      id: 'c3',
-      username: '@tech_guru',
-      avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCM9jVPWq3jXyYTvCVpXe1tG_0JP9I93XHkJn8Rnfc5mj7MBBTN9jv2skpNMIKV3x3FvgIlMce9ErKZwYsv1eAvH7fBgeSbsruk0V5PixIY0HM5cjcvcuaPKNjkzITz-nI_AdYY-ZbAqOaJxantdpfpkfrw8CfhNLN0wgAeOjTeinQ1he7UROA6Ejy4xkNRJHKFeVOfPbPpDRzA8iKlGXB7DP5TuSDt0jNdrtKy-KcQ6UFtXxWqvAumHylkCqLkDY9XaAjfoOd6PxPe',
-    },
-    aspectRatio: '9:14',
-  },
-  {
-    id: '4',
-    thumbnail: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAn1bDZl2euz0ZOA7H9XG4GSgGDElr-uoO_hDyuAOmPba-EkUWw-qjeqjk4MMrAUAH_F08w5ARccAQ482acqkazTTS-DeTGTB3LtFzEzWL47q8_NL-gkug9H-D9zfmlm3CI2-cY2a3BlAnktny3ahlIAtDOlcp945Vv5EDTNgYztJgUcpoKi_sePpGetxpiKuwJBjTMOQKHXJflKbLsHP2U0E0t2HheNeJcttdlEOafx2vHK5MmFvZzADsoMlhHhdwr51kaOH1p2388',
-    views: 2500000,
-    creator: {
-      id: 'c4',
-      username: '@creative_soul',
-      avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDlN1Yx_vQbEup7i6b6qKPmK-HVXclal1OibHUQO3eFOTxzHGvW2I81UbN9qavMCt8Ev2ujCNXF1FrpWKgwFDoU95POTq7SxRbmnxhqljcXJzQGFHj5Bqxew3TO9BwGu_-SHdivVZ96kfB2M-sgTsgffW9L87GtLNG2mpOv_6riDGSPFgxApclcyy46HKoaQW0BEg6l9Oq1gLALRjrFkD6klMSUtBm5JEyhndjie2ywpyS4US-ji71omNhAXkFyOLemwuz5V5ZtN4X8',
-    },
-    aspectRatio: '9:16',
-  },
-];
-
-const CATEGORIES = ['Trending', 'Dance', 'Comedy', 'Tech', 'Music', 'Gaming'];
-
-// Video Item Component
-const VideoItem: React.FC<{ item: VideoItem; onPress: (id: string) => void }> = ({ item, onPress }) => {
-  const getAspectRatio = () => {
-    switch (item.aspectRatio) {
-      case '9:16': return 9 / 16;
-      case '9:12': return 9 / 12;
-      case '9:14': return 9 / 14;
-      default: return 9 / 16;
-    }
-  };
-
-  const formatNumber = (num: number): string => {
-    if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
-    if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
-    return num.toString();
-  };
-
-  return (
-    <Pressable 
-      style={[styles.videoItem, { aspectRatio: getAspectRatio() }]}
-      onPress={() => onPress(item.id)}
-
-    >
-      <Image source={{ uri: item.thumbnail }} style={styles.videoThumbnail} resizeMode="cover" />
-      <LinearGradient
-        colors={['rgba(0,0,0,0.2)', 'transparent', 'rgba(0,0,0,0.6)']}
-        style={styles.videoOverlay}
-      />
-      <View style={styles.viewCountBadge}>
-        <Text style={styles.viewCountIcon}>👁️</Text>
-        <Text style={styles.viewCountText}>{formatNumber(item.views)}</Text>
-      </View>
-      <View style={styles.creatorInfo}>
-        <Image source={{ uri: item.creator.avatar }} style={styles.creatorAvatar} />
-        <Text style={styles.creatorUsername}>{item.creator.username}</Text>
-      </View>
-    </Pressable>
-  );
-};
-
-// Challenge Item Component
-const ChallengeItem: React.FC<{ item: ChallengeItem; onPress: (id: string) => void }> = ({ item, onPress }) => {
-  const isCyan = item.variant === 'cyan';
-  
-  return (
-    <Pressable 
-      style={[styles.challengeCard, isCyan ? styles.cyanBorder : styles.pinkBorder]}
-      onPress={() => onPress(item.id)}
-
-    >
-      <Image source={{ uri: item.thumbnail }} style={styles.challengeImage} resizeMode="cover" />
-      <LinearGradient
-        colors={['transparent', 'rgba(0,0,0,0.8)']}
-        style={styles.challengeOverlay}
-      >
-        <Text style={[styles.challengeTitle, isCyan ? styles.cyanText : styles.pinkText]}>
-          {item.title}
-        </Text>
-        <Text style={styles.challengeParticipants}>{item.participants}</Text>
-      </LinearGradient>
-    </Pressable>
-  );
-};
 
 // Main Discover Component
 interface DiscoverScreenProps {
@@ -181,8 +34,7 @@ interface DiscoverScreenProps {
 export const DiscoverScreen: React.FC<DiscoverScreenProps> = ({ onLivePress }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Trending');
-  const [videos, _setVideos] = useState<VideoItem[]>(mockVideos);
-  const _scrollY = useRef(new Animated.Value(0)).current;
+  const [videos] = useState<VideoItemType[]>(mockVideos);
 
   const handleVideoPress = (id: string) => {
     console.log('Video pressed:', id);
@@ -209,7 +61,7 @@ export const DiscoverScreen: React.FC<DiscoverScreenProps> = ({ onLivePress }) =
     return items;
   };
 
-  const renderMasonryRow = ({ item }: { item: { left: VideoItem; right?: VideoItem } }) => (
+  const renderMasonryRow = ({ item }: { item: { left: VideoItemType; right?: VideoItemType } }) => (
     <View style={styles.masonryRow}>
       <View style={styles.masonryLeft}>
         <VideoItem item={item.left} onPress={handleVideoPress} />

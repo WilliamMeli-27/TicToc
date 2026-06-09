@@ -14,56 +14,9 @@ import {
   Platform,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import { Comment, Reaction, mockComments, REACTION_ICONS, hostInfoMock } from './LiveItems';
 
-const { width: _width } = Dimensions.get('window');
-
-// Types
-interface Comment {
-  id: string;
-  username: string;
-  text: string;
-  isTopFan?: boolean;
-  isSystem?: boolean;
-  timestamp: Date;
-}
-
-interface Reaction {
-  id: string;
-  icon: string;
-  color: string;
-  x: number;
-}
-
-// Mock data
-const mockComments: Comment[] = [
-  {
-    id: '1',
-    username: 'NeonRider',
-    text: 'The visuals are absolutely insane tonight!! 🔥✨',
-    isTopFan: true,
-    timestamp: new Date(),
-  },
-  {
-    id: '2',
-    username: 'Digital_Dreamer',
-    text: 'Where did you get that headset?? Looks unreal.',
-    timestamp: new Date(),
-  },
-  {
-    id: '3',
-    username: 'System_Admin',
-    text: 'Kira just reached 10k likes this stream! Keep it going!',
-    isSystem: true,
-    timestamp: new Date(),
-  },
-];
-
-const REACTION_ICONS = [
-  { icon: '❤️', color: '#ff4b89', name: 'heart' },
-  { icon: '🔥', color: '#ff9500', name: 'fire' },
-  { icon: '✨', color: '#a2ef00', name: 'sparkle' },
-  { icon: '🎉', color: '#00f0ff', name: 'celebration' },
-];
+const { width: _width, height: _height } = Dimensions.get('window');
 
 export const LiveStreamScreen: React.FC<{ onBackPress?: () => void }> = ({ onBackPress }) => {
   const [comments, setComments] = useState<Comment[]>(mockComments);
@@ -270,12 +223,12 @@ export const LiveStreamScreen: React.FC<{ onBackPress?: () => void }> = ({ onBac
         <View style={styles.hostInfo}>
           <View style={styles.hostCard}>
             <Image 
-              source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBPNwgkfniCLaqPQVImMSIkr0cq8wBYogpspyV1iWI1RqnS5Ku_XqfEkMFFvr0oAfcXhAWT19fjpUk7eoZ5RX6S0gfoTY3_IE21tEveTH_fZU5d-Y743sUEpvbLCtPi_HmWn4PX2tPANEN8b8WlIBWTeJxyuJyuh17DvZZutHZ3rPptW8qAWd2Z7zxXYH6enTQ4_q3KkfBhc8x2KFF5_K45mQJ8SqZd5I8yddLUdR6UJwbDLjxatv7STk9VabwvCb1gqSjFtaV-H013' }}
+              source={{ uri: hostInfoMock.avatar }}
               style={styles.hostAvatar}
             />
             <View>
-              <Text style={styles.hostName}>Cyber_Kira</Text>
-              <Text style={styles.followerCount}>14.2k followers</Text>
+              <Text style={styles.hostName}>{hostInfoMock.username}</Text>
+              <Text style={styles.followerCount}>{hostInfoMock.followers}</Text>
             </View>
             <Pressable 
               style={[styles.followButton, isFollowing && styles.followingButton]}
