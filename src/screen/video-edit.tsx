@@ -14,35 +14,9 @@ import {
   Platform,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import Slider from '@react-native-community/slider';
+import { TimelineTrack, TextOverlay, Sticker } from '../components/EditorItems';
 
 const { width, height } = Dimensions.get('window');
-const isSmallScreen = width < 380;
-
-// Types
-interface TimelineTrack {
-  id: string;
-  type: 'video' | 'audio' | 'text' | 'sticker';
-  startTime: number;
-  duration: number;
-  data: any;
-}
-
-interface TextOverlay {
-  id: string;
-  text: string;
-  x: number;
-  y: number;
-  fontSize: number;
-  color: string;
-}
-
-interface Sticker {
-  id: string;
-  icon: string;
-  x: number;
-  y: number;
-}
 
 export const VideoEditorScreen: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(4); // seconds
