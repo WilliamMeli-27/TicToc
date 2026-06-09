@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   SafeAreaView,
   View,
@@ -6,16 +6,15 @@ import {
   Pressable,
   StyleSheet,
   Dimensions,
-  Animated,
   FlatList,
   Image,
   StatusBar,
   ScrollView,
   Platform,
 } from 'react-native';
-import { Notification, FilterType, filters, mockNotifications } from '../components/NotificationItems';
+import { Notification, FilterType, filters, mockNotifications } from './NotificationItems';
 
-const { width, height } = Dimensions.get('window');
+const { width, height: _height } = Dimensions.get('window');
 const isSmallScreen = width < 380;
 
 export const InboxScreen: React.FC<{ onLivePress?: () => void }> = ({ onLivePress }) => {
@@ -24,7 +23,7 @@ export const InboxScreen: React.FC<{ onLivePress?: () => void }> = ({ onLivePres
   const [isFollowing, setIsFollowing] = useState<{ [key: string]: boolean }>({});
 
   // Format number with K/M
-  const formatNumber = (num: number): string => {
+  const _formatNumber = (num: number): string => {
     if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
     if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
     return num.toString();

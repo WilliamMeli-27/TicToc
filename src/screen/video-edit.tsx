@@ -13,14 +13,14 @@ import {
   PanResponder,
   Platform,
 } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
-import { TimelineTrack, TextOverlay, Sticker } from '../components/EditorItems';
+import { TextOverlay, Sticker } from './EditorItems';
 
 const { width, height } = Dimensions.get('window');
+const isSmallScreen = width < 380;
 
 export const VideoEditorScreen: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(4); // seconds
-  const [totalDuration, setTotalDuration] = useState(15);
+  const [totalDuration, _setTotalDuration] = useState(15);
   const [isPlaying, setIsPlaying] = useState(false);
   const [textOverlays, setTextOverlays] = useState<TextOverlay[]>([
     { id: '1', text: 'NIGHT VIBES', x: width / 2 - 80, y: height * 0.25, fontSize: 20, color: '#00f0ff' },
@@ -32,7 +32,7 @@ export const VideoEditorScreen: React.FC = () => {
   // Animation values
   const playheadAnim = useRef(new Animated.Value(currentTime)).current;
   const scrollX = useRef(new Animated.Value(0)).current;
-  const timelineScale = useRef(new Animated.Value(1)).current;
+  const _timelineScale = useRef(new Animated.Value(1)).current;
   
   // Refs
   const timelineScrollRef = useRef<ScrollView>(null);
@@ -85,7 +85,7 @@ export const VideoEditorScreen: React.FC = () => {
   };
 
   // Handle seek
-  const handleSeek = (value: number) => {
+  const _handleSeek = (value: number) => {
     setIsPlaying(false);
     setCurrentTime(value);
   };

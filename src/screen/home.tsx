@@ -14,7 +14,8 @@ import {
   ScrollView,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import { VideoPost, VideoSlideProps, mockPosts } from '../components/HomeItems';
+import Video from 'react-native-video';
+import { VideoPost, VideoSlideProps, mockPosts } from './HomeItems';
 
 const { width, height } = Dimensions.get('window');
 
@@ -68,11 +69,23 @@ const VideoSlide: React.FC<VideoSlideProps> = ({
   return (
     <View style={styles.videoSlide}>
       {/* Background Image/Video */}
-      <Image
-        source={{ uri: post.thumbnail }}
-        style={styles.backgroundImage}
-        resizeMode="cover"
-      />
+      {post.videoUrl ? (
+        <Video
+          source={{ uri: post.videoUrl }}
+          style={styles.backgroundImage}
+          resizeMode="cover"
+          repeat
+          paused={false}
+          poster={post.thumbnail}
+          posterResizeMode="cover"
+        />
+      ) : (
+        <Image
+          source={{ uri: post.thumbnail }}
+          style={styles.backgroundImage}
+          resizeMode="cover"
+        />
+      )}
       <LinearGradient
         colors={['rgba(0,0,0,0.4)', 'transparent', 'rgba(0,0,0,0.8)']}
         style={styles.gradientOverlay}
@@ -190,6 +203,38 @@ export const VideoFeedScreen: React.FC<VideoFeedScreenProps> = ({ onLivePress })
   const [activeTab, setActiveTab] = useState<'forYou' | 'following'>('forYou');
   const flatListRef = useRef<FlatList>(null);
   const scrollY = useRef(new Animated.Value(0)).current;
+
+  // Load videos from Firestore (with mock fallback)
+  useEffect(() => {
+    const loadVideos = async () => {
+      try {
+        const { chargerVideos } = require('../services/videoService');
+        const videos = await chargerVideos(20);
+        if (videos && videos.length > 0) {
+          const mapped: VideoPost[] = videos.map((v: any) => ({
+            id: v.id,
+            username: `@${v.userId?.substring(0, 8) || 'user'}`,
+            avatar: '',
+            videoUrl: v.videoUrl || '',
+            thumbnail: v.thumbnail || '',
+            description: v.description || '',
+            hashtags: v.hashtags || [],
+            musicTitle: '',
+            likes: v.likesCount || 0,
+            comments: v.commentsCount || 0,
+            bookmarks: 0,
+            shares: v.sharesCount || 0,
+            isLiked: false,
+            isBookmarked: false,
+          }));
+          setPosts(mapped);
+        }
+      } catch (_e) {
+        console.log('Using mock data for feed');
+      }
+    };
+    loadVideos();
+  }, []);
 
   const handleLike = (id: string) => {
     setPosts(prev =>

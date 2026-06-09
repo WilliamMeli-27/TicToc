@@ -7,15 +7,22 @@ import {
   Pressable,
   StyleSheet,
   Dimensions,
-  Animated,
   FlatList,
-  Image,
   StatusBar,
   ScrollView,
+  Platform,
 } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
 
-const { width, height } = Dimensions.get('window');
+import {
+  VideoItemType,
+  CATEGORIES,
+  mockChallenges,
+  mockVideos,
+  VideoItem,
+  ChallengeItem,
+} from './DiscoverItems';
+
+const { width, height: _height } = Dimensions.get('window');
 const isSmallScreen = width < 380;
 
 

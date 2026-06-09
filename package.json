@@ -20,6 +20,7 @@
     "react-native": "0.85.3",
     "react-native-linear-gradient": "^2.8.3",
     "react-native-safe-area-context": "^5.5.2",
+    "react-native-video": "^6.19.2",
     "react-native-vision-camera": "^4.7.3",
     "react-native-worklets-core": "^1.6.3"
   },

@@ -8,16 +8,15 @@ import {
   StyleSheet,
   Dimensions,
   Animated,
-  FlatList,
   Image,
   StatusBar,
   ScrollView,
   Platform,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import { Comment, Reaction, mockComments, REACTION_ICONS, hostInfoMock } from '../components/LiveItems';
+import { Comment, Reaction, mockComments, REACTION_ICONS, hostInfoMock } from './LiveItems';
 
-const { width, height } = Dimensions.get('window');
+const { width: _width, height: _height } = Dimensions.get('window');
 
 export const LiveStreamScreen: React.FC<{ onBackPress?: () => void }> = ({ onBackPress }) => {
   const [comments, setComments] = useState<Comment[]>(mockComments);
@@ -81,7 +80,7 @@ export const LiveStreamScreen: React.FC<{ onBackPress?: () => void }> = ({ onBac
     const interval = setInterval(() => {
       setReactions(prev => prev.filter(r => {
         const anim = reactionAnimRefs.current[r.id];
-        return anim && anim.__getValue() < 1;
+        return anim && (anim as any)._value < 1;
       }));
     }, 500);
     return () => clearInterval(interval);

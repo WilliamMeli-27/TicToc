@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Pressable, Image, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, Pressable, Image, StyleSheet } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 
 export interface Creator {

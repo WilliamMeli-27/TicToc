@@ -19,16 +19,18 @@ import {
   mockPosts,
   mockPrivatePosts,
   mockSavedPosts,
-} from '../components/ProfileItems';
+} from './ProfileItems';
 
-const { width, height } = Dimensions.get('window');
+const { width, height: _height } = Dimensions.get('window');
 const isSmallScreen = width < 380;
 
 interface ProfileScreenProps {
   onLivePress?: () => void;
+  onLogout?: () => void;
+  userId?: string;
 }
 
-export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLivePress }) => {
+export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLivePress, onLogout }) => {
   const [activeTab, setActiveTab] = useState<TabType>('posts');
   const [isFollowing, setIsFollowing] = useState(false);
 
@@ -74,7 +76,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLivePress }) => 
   };
 
   // Handle follow
-  const handleFollow = () => {
+  const _handleFollow = () => {
     setIsFollowing(!isFollowing);
   };
 
@@ -159,6 +161,11 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLivePress }) => 
             <Pressable style={styles.iconButton} onPress={handleBookmark}>
               <Text style={styles.iconButtonIcon}>🔖</Text>
             </Pressable>
+            {onLogout && (
+              <Pressable style={styles.iconButton} onPress={onLogout}>
+                <Text style={styles.iconButtonIcon}>🚪</Text>
+              </Pressable>
+            )}
           </View>
         </View>
 

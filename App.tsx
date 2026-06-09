@@ -8,8 +8,12 @@ import {
   Animated,
   Easing,
   StatusBar,
+  Alert,
 } from 'react-native';
 import { BottomNavigationBar, TabType } from './src/navigation/navigation-bar';
+import { auth } from './src/lib/firebase';
+import { onAuthStateChanged, User } from 'firebase/auth';
+import { inscription, connexion, deconnexion } from './src/services/authService';
 
 export type AppTabType = TabType | 'live' | 'video-edit';
 export type AuthScreenType = 'signup' | 'login' | 'forget-password' | 'verification-code';
@@ -501,13 +505,43 @@ export const TouchSplashScreen: React.FC<SplashScreenProps> = (props) => {
 
 const App: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [authChecked, setAuthChecked] = useState(false);
   const [activeTab, setActiveTab] = useState<AppTabType>('home');
   const [authScreen, setAuthScreen] = useState<AuthScreenType>('signup');
 
-  const handleAuthSuccess = () => {
-    setIsAuthenticated(true);
-    setActiveTab('home');
+  // Listen for Firebase auth state changes
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
+      setAuthChecked(true);
+    });
+    return unsubscribe;
+  }, []);
+
+  const handleSignUp = async (email: string, password: string, username?: string) => {
+    try {
+      await inscription(email, password, username || email.split('@')[0]);
+    } catch (error: any) {
+      Alert.alert('Erreur', error.message || 'Inscription échouée');
+    }
+  };
+
+  const handleLogin = async (email: string, password: string) => {
+    try {
+      await connexion(email, password);
+    } catch (error: any) {
+      Alert.alert('Erreur', error.message || 'Connexion échouée');
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await deconnexion();
+      setActiveTab('home');
+    } catch (error: any) {
+      Alert.alert('Erreur', error.message || 'Déconnexion échouée');
+    }
   };
 
   const renderAuthScreen = () => {
@@ -517,7 +551,7 @@ const App: React.FC = () => {
         const LoginScreen = mod.LoginScreen ?? mod.default;
         return (
           <LoginScreen
-            onLoginSuccess={handleAuthSuccess}
+            onLoginSuccess={handleLogin}
             onForgotPassword={() => setAuthScreen('forget-password')}
             onSignUp={() => setAuthScreen('signup')}
           />
@@ -541,7 +575,7 @@ const App: React.FC = () => {
             onVerify={async () => true}
             onResendCode={async () => true}
             onBack={() => setAuthScreen('login')}
-            onSuccess={handleAuthSuccess}
+            onSuccess={() => {}}
           />
         );
       }
@@ -552,7 +586,7 @@ const App: React.FC = () => {
         return (
           <SignUpScreen
             onLogin={() => setAuthScreen('login')}
-            onSignUpSuccess={handleAuthSuccess}
+            onSignUpSuccess={handleSignUp}
           />
         );
       }
@@ -574,7 +608,6 @@ const App: React.FC = () => {
           );
         }
       case 'discover':
-        // Import dynamically to avoid circular dependencies
         {
           const mod = require('./src/screen/discover');
           const DiscoverScreen = mod.DiscoverScreen ?? mod.default;
@@ -602,23 +635,29 @@ const App: React.FC = () => {
         {
           const mod = require('./src/screen/profile');
           const ProfileScreen = mod.ProfileScreen ?? mod.default;
-          return <ProfileScreen onLivePress={handleLivePress} />;
+          return (
+            <ProfileScreen
+              onLivePress={handleLivePress}
+              onLogout={handleLogout}
+              userId={currentUser?.uid}
+            />
+          );
         }
       case 'home':
       default:
         {
           const mod = require('./src/screen/home');
           const HomeScreen = mod.HomeScreen ?? mod.default;
-          return <HomeScreen onLivePress={handleLivePress} />;
+          return <HomeScreen onLivePress={handleLivePress} userId={currentUser?.uid} />;
         }
     }
   };
 
-  if (!isLoaded) {
+  if (!isLoaded || !authChecked) {
     return <SplashScreen onLoadingComplete={() => setIsLoaded(true)} />;
   }
 
-  if (!isAuthenticated) {
+  if (!currentUser) {
     return <View style={styles.appContainer}>{renderAuthScreen()}</View>;
   }
 

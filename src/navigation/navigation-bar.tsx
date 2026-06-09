@@ -1,7 +1,7 @@
 // components/BottomNavigationBar.tsx (version complète)
 // components/BottomNavigationBar.tsx
 import React from 'react';
-import { View, Text, Pressable, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
 
 // Types
 export type TabType = 'home' | 'discover' | 'create' | 'inbox' | 'profile';
