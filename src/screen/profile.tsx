@@ -13,9 +13,9 @@ import {
   ScrollView,
   Platform,
 } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
+// import LinearGradient from 'react-native-linear-gradient';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 const isSmallScreen = width < 380;
 
 // Types
@@ -35,6 +35,8 @@ type TabType = 'posts' | 'private' | 'saved';
 
 interface ProfileScreenProps {
   onLivePress?: () => void;
+  onLogout?: () => void;
+  userId?: string;
 }
 
 // Mock data
@@ -87,7 +89,7 @@ const mockSavedPosts: Post[] = [
   },
 ];
 
-export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLivePress }) => {
+export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLivePress, onLogout, userId: _userId }) => {
   const [activeTab, setActiveTab] = useState<TabType>('posts');
   const [stats] = useState<UserStats>({
     followers: 12800,
@@ -96,8 +98,8 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLivePress }) => 
   });
   const [isFollowing, setIsFollowing] = useState(false);
   
-  const scrollY = useRef(new Animated.Value(0)).current;
-  const headerOpacity = useRef(new Animated.Value(1)).current;
+  const _scrollY = useRef(new Animated.Value(0)).current;
+  const _headerOpacity = useRef(new Animated.Value(1)).current;
 
   // Format number with K/M
   const formatNumber = (num: number): string => {
@@ -141,7 +143,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLivePress }) => 
   };
 
   // Handle follow
-  const handleFollow = () => {
+  const _handleFollow = () => {
     setIsFollowing(!isFollowing);
   };
 
@@ -228,6 +230,11 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLivePress }) => 
             <Pressable style={styles.iconButton} onPress={handleBookmark}>
               <Text style={styles.iconButtonIcon}>🔖</Text>
             </Pressable>
+            {onLogout && (
+              <Pressable style={styles.iconButton} onPress={onLogout}>
+                <Text style={styles.iconButtonIcon}>🚪</Text>
+              </Pressable>
+            )}
           </View>
         </View>
 

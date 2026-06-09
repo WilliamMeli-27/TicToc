@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   SafeAreaView,
   View,
@@ -11,10 +11,11 @@ import {
   Image,
   StatusBar,
   ScrollView,
+  Platform,
 } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
+// import LinearGradient from 'react-native-linear-gradient';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 const isSmallScreen = width < 380;
 
 // Types
@@ -101,14 +102,14 @@ const filters: FilterType[] = [
 
 export const InboxScreen: React.FC<{ onLivePress?: () => void }> = ({ onLivePress }) => {
   const [activeFilter, setActiveFilter] = useState<string>('likes');
-  const [notifications, setNotifications] = useState<Notification[]>(mockNotifications);
+  const [notifications, _setNotifications] = useState<Notification[]>(mockNotifications);
   const [isFollowing, setIsFollowing] = useState<{ [key: string]: boolean }>({});
 
   // Animation values
-  const scrollY = useRef(new Animated.Value(0)).current;
+  const _scrollY = useRef(new Animated.Value(0)).current;
 
   // Format number with K/M
-  const formatNumber = (num: number): string => {
+  const _formatNumber = (num: number): string => {
     if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
     if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
     return num.toString();

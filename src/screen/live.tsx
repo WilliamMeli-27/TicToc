@@ -8,15 +8,14 @@ import {
   StyleSheet,
   Dimensions,
   Animated,
-  FlatList,
   Image,
   StatusBar,
   ScrollView,
+  Platform,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 
-const { width, height } = Dimensions.get('window');
-const isSmallScreen = width < 380;
+const { width: _width } = Dimensions.get('window');
 
 // Types
 interface Comment {
@@ -128,7 +127,7 @@ export const LiveStreamScreen: React.FC<{ onBackPress?: () => void }> = ({ onBac
     const interval = setInterval(() => {
       setReactions(prev => prev.filter(r => {
         const anim = reactionAnimRefs.current[r.id];
-        return anim && anim.__getValue() < 1;
+        return anim && (anim as any)._value < 1;
       }));
     }, 500);
     return () => clearInterval(interval);

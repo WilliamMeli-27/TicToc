@@ -1,4 +1,6 @@
 import { initializeApp } from 'firebase/app'
+import { getAuth } from 'firebase/auth'
+import { getFirestore } from 'firebase/firestore'
 import { getDatabase } from 'firebase/database'
 
 const firebaseConfig = {
@@ -8,8 +10,11 @@ const firebaseConfig = {
   storageBucket:     "tictoc-f89e9.appspot.com",
   messagingSenderId: "...",
   appId:             "...",
-  databaseURL: "https://tictoc-f89e9-default-rtdb.firebaseio.com/"
+  databaseURL:       "https://tictoc-f89e9-default-rtdb.firebaseio.com/"
 }
 
 const app = initializeApp(firebaseConfig)
-export const db = getDatabase(app)
+
+export const auth = getAuth(app)
+export const db = getFirestore(app)
+export const realtimeDb = getDatabase(app)

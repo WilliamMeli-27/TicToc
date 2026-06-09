@@ -358,6 +358,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.4,
     shadowRadius: 10,
   },
+  strengthSegmentInactive: {
+    backgroundColor: 'rgba(59, 73, 75, 0.3)',
+  },
   strengthText: {
     fontSize: 12,
     lineHeight: 16,

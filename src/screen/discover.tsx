@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   SafeAreaView,
   View,
@@ -12,10 +12,11 @@ import {
   Image,
   StatusBar,
   ScrollView,
+  Platform,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 const isSmallScreen = width < 380;
 
 // Types
@@ -180,8 +181,8 @@ interface DiscoverScreenProps {
 export const DiscoverScreen: React.FC<DiscoverScreenProps> = ({ onLivePress }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Trending');
-  const [videos, setVideos] = useState<VideoItem[]>(mockVideos);
-  const scrollY = useRef(new Animated.Value(0)).current;
+  const [videos, _setVideos] = useState<VideoItem[]>(mockVideos);
+  const _scrollY = useRef(new Animated.Value(0)).current;
 
   const handleVideoPress = (id: string) => {
     console.log('Video pressed:', id);

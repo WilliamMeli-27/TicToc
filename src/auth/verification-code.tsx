@@ -50,7 +50,7 @@ export const OTPScreen: React.FC<OTPScreenProps> = ({
   const slideAnim = useRef(new Animated.Value(30)).current;
   const buttonScaleAnim = useRef(new Animated.Value(1)).current;
   const glowAnim = useRef(new Animated.Value(0)).current;
-  const scaleAnim = useRef(new Animated.Value(1)).current;
+  const _scaleAnim = useRef(new Animated.Value(1)).current;
 
   // Countdown timer
   useEffect(() => {
@@ -167,7 +167,7 @@ export const OTPScreen: React.FC<OTPScreenProps> = ({
         setOtp(['', '', '', '']);
         inputRefs.current[0]?.focus();
       }
-    } catch (error) {
+    } catch (_error) {
       Alert.alert('Error', 'An error occurred. Please try again.');
     } finally {
       setIsLoading(false);
@@ -192,7 +192,7 @@ export const OTPScreen: React.FC<OTPScreenProps> = ({
       } else {
         Alert.alert('Error', 'Failed to resend code. Please try again.');
       }
-    } catch (error) {
+    } catch (_error) {
       Alert.alert('Error', 'An error occurred. Please try again.');
     } finally {
       setIsResending(false);
@@ -272,7 +272,7 @@ export const OTPScreen: React.FC<OTPScreenProps> = ({
             {otp.map((digit, index) => (
               <TextInput
                 key={index}
-                ref={(ref) => (inputRefs.current[index] = ref)}
+                ref={(ref) => { inputRefs.current[index] = ref; }}
                 style={getOtpInputStyle(index)}
                 value={digit}
                 onChangeText={(text) => handleOtpChange(text, index)}

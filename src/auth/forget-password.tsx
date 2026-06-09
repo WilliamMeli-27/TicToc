@@ -14,9 +14,10 @@ import {
   Alert,
   StatusBar,
 } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
+// LinearGradient available if needed
+// import LinearGradient from 'react-native-linear-gradient';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 const isSmallScreen = width < 380;
 
 // Types
@@ -47,7 +48,7 @@ export const ResetPasswordScreen: React.FC<ResetPasswordScreenProps> = ({
 
   // Validation des couleurs pour le glow
   const primaryColor = '#00f0ff';
-  const secondaryColor = '#ff4b89';
+  const _secondaryColor = '#ff4b89';
 
   useEffect(() => {
     // Entrance animation
@@ -165,7 +166,7 @@ export const ResetPasswordScreen: React.FC<ResetPasswordScreenProps> = ({
         success = await onSendResetLink(email);
       } else {
         // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        await new Promise<void>(resolve => setTimeout(resolve, 1500));
         success = true;
       }
 
@@ -180,7 +181,7 @@ export const ResetPasswordScreen: React.FC<ResetPasswordScreenProps> = ({
       } else {
         Alert.alert('Error', 'Failed to send reset link. Please try again.');
       }
-    } catch (error) {
+    } catch (_error) {
       Alert.alert('Error', 'An error occurred. Please try again.');
     } finally {
       setIsLoading(false);

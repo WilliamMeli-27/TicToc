@@ -1,6 +1,6 @@
 // services/databaseService.js
 import { ref, set, get, onValue, push, remove } from 'firebase/database'
-import { db } from '../lib/firebase'
+import { realtimeDb as db } from '../lib/firebase'
 
 // ── ÉCRIRE un utilisateur ────────────────────────────
 export const creerUtilisateur = async (userId, data) => {

@@ -14,8 +14,7 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import { Camera, useCameraDevices } from 'react-native-vision-camera';
 
-const { width, height } = Dimensions.get('window');
-const isSmallScreen = width < 380;
+const { width: _width } = Dimensions.get('window');
 
 // Types
 type ModeType = 'VIDEO' | 'PHOTO' | 'LIVE';
@@ -28,7 +27,7 @@ export const CameraScreen: React.FC<CameraScreenProps> = ({ onOpenEditor }) => {
   const [isRecording, setIsRecording] = useState(false);
   const [currentProgress, setCurrentProgress] = useState(0);
   const [selectedMode, setSelectedMode] = useState<ModeType>('VIDEO');
-  const [isCameraReady, setIsCameraReady] = useState(false);
+  const [_isCameraReady, _setIsCameraReady] = useState(false);
   const [cameraPosition, setCameraPosition] = useState<'front' | 'back'>('back');
   
   const progressInterval = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -39,7 +38,7 @@ export const CameraScreen: React.FC<CameraScreenProps> = ({ onOpenEditor }) => {
   const progressAnim = useRef(new Animated.Value(0)).current;
   
   const devices = useCameraDevices();
-  const device = cameraPosition === 'back' ? devices.back : devices.front;
+  const device = devices.find(d => d.position === cameraPosition) ?? devices[0];
 
   // Animate progress bar
   useEffect(() => {
@@ -77,7 +76,7 @@ export const CameraScreen: React.FC<CameraScreenProps> = ({ onOpenEditor }) => {
   }, [currentProgress]);
 
   // Handle record button press
-  const handleRecordPress = () => {
+  const _handleRecordPress = () => {
     // Button scale animation
     Animated.sequence([
       Animated.spring(recordScaleAnim, {
@@ -128,7 +127,7 @@ export const CameraScreen: React.FC<CameraScreenProps> = ({ onOpenEditor }) => {
   };
 
   // Handle flip camera
-  const handleFlipCamera = () => {
+  const _handleFlipCamera = () => {
     // Rotation animation
     Animated.sequence([
       Animated.timing(flipRotateAnim, {
