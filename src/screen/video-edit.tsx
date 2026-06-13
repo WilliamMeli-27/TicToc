@@ -13,7 +13,6 @@ import {
   PanResponder,
   Platform,
 } from 'react-native';
-import { TextOverlay, Sticker } from './EditorItems';
 
 const { width, height } = Dimensions.get('window');
 const isSmallScreen = width < 380;

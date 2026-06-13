@@ -1,26 +1,22 @@
-// Cloudinary configuration
-// Replace these values with your actual Cloudinary credentials
-const CLOUDINARY_CLOUD_NAME = 'YOUR_CLOUD_NAME'
-const CLOUDINARY_UPLOAD_PRESET = 'YOUR_UPLOAD_PRESET'
+const CLOUDINARY_CLOUD_NAME = 'diipwifar'
+const CLOUDINARY_UPLOAD_PRESET = 'storage_tictoc'
 
 const CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/video/upload`
 
-/**
- * Upload a video to Cloudinary using unsigned upload
- * @param {string} videoUri - Local file URI of the video
- * @param {function} onProgress - Progress callback (0-100)
- * @returns {Promise<{url: string, publicId: string, duration: number}>}
- */
 export const uploadVideoToCloudinary = async (videoUri, onProgress) => {
   const formData = new FormData()
 
+  // ✅ Extension dynamique
+  const extension = videoUri.split('.').pop() || 'mp4'
+  const mimeType = extension === 'mov' ? 'video/quicktime' : 'video/mp4'
+
   formData.append('file', {
     uri: videoUri,
-    type: 'video/mp4',
-    name: `video_${Date.now()}.mp4`,
+    type: mimeType,
+    name: `video_${Date.now()}.${extension}`,
   })
   formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET)
-  formData.append('resource_type', 'video')
+  // ✅ resource_type retiré du formData (déjà dans l'URL)
 
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest()
@@ -39,7 +35,7 @@ export const uploadVideoToCloudinary = async (videoUri, onProgress) => {
           url: response.secure_url,
           publicId: response.public_id,
           duration: response.duration || 0,
-          thumbnail: response.secure_url.replace(/\.\w+$/, '.jpg'),
+          thumbnail: getVideoThumbnail(response.secure_url),
         })
       } else {
         reject(new Error(`Upload failed with status ${xhr.status}`))
@@ -55,14 +51,9 @@ export const uploadVideoToCloudinary = async (videoUri, onProgress) => {
   })
 }
 
-/**
- * Get a Cloudinary video thumbnail URL
- * @param {string} videoUrl - Cloudinary video URL
- * @param {object} options - Thumbnail options
- * @returns {string} - Thumbnail URL
- */
 export const getVideoThumbnail = (videoUrl, options = {}) => {
   const { width = 400, height = 600 } = options
-  // Convert video URL to thumbnail by replacing extension and adding transformations
-  return videoUrl.replace('/video/upload/', `/video/upload/w_${width},h_${height},c_fill,so_0/`).replace(/\.\w+$/, '.jpg')
+  return videoUrl
+    .replace('/video/upload/', `/video/upload/w_${width},h_${height},c_fill,so_0/`)
+    .replace(/\.\w+$/, '.jpg')
 }

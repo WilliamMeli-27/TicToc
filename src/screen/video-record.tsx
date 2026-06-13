@@ -13,8 +13,6 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { Camera, useCameraDevices } from 'react-native-vision-camera';
-import { ModeType, cameraAssets } from './CameraItems';
-
 const { width: _width, height: _height } = Dimensions.get('window');
 
 interface CameraScreenProps {

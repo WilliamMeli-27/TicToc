@@ -14,12 +14,10 @@ import {
   Platform,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import { Comment, Reaction, mockComments, REACTION_ICONS, hostInfoMock } from './LiveItems';
-
 const { width: _width, height: _height } = Dimensions.get('window');
 
 export const LiveStreamScreen: React.FC<{ onBackPress?: () => void }> = ({ onBackPress }) => {
-  const [comments, setComments] = useState<Comment[]>(mockComments);
+  const [comments, setComments] = useState<Comment[]>([]);
   const [inputText, setInputText] = useState('');
   const [viewerCount, setViewerCount] = useState(2841);
   const [isFollowing, setIsFollowing] = useState(false);

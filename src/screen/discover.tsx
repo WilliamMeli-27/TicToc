@@ -13,18 +13,12 @@ import {
   Platform,
 } from 'react-native';
 
-import {
-  VideoItemType,
-  CATEGORIES,
-  mockChallenges,
-  mockVideos,
-  VideoItem,
-  ChallengeItem,
-} from './DiscoverItems';
 
 const { width, height: _height } = Dimensions.get('window');
 const isSmallScreen = width < 380;
 
+
+import * as videoService from '../services/videoService';
 
 // Main Discover Component
 interface DiscoverScreenProps {
@@ -34,7 +28,34 @@ interface DiscoverScreenProps {
 export const DiscoverScreen: React.FC<DiscoverScreenProps> = ({ onLivePress }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Trending');
-  const [videos] = useState<VideoItemType[]>(mockVideos);
+  const [videos, setVideos] = useState<VideoItemType[]>([]);
+  const [challenges] = useState<ChallengeItemType[]>([]);
+
+  useEffect(() => {
+    const loadVideos = async () => {
+      try {
+        const data = await videoService.chargerVideos(20);
+        if (data && data.length > 0) {
+          const mapped: VideoItemType[] = data.map((v: any) => ({
+            id: v.id,
+            thumbnail: v.thumbnail || '',
+            views: v.viewsCount || 0,
+            creator: {
+              username: `@${v.userId?.substring(0, 8) || 'user'}`,
+              avatar: '',
+            },
+          }));
+          setVideos(mapped);
+        } else {
+          setVideos([]);
+        }
+      } catch (err) {
+        console.log('Error loading discover videos:', err);
+        setVideos([]);
+      }
+    };
+    loadVideos();
+  }, []);
 
   const handleVideoPress = (id: string) => {
     console.log('Video pressed:', id);
@@ -46,8 +67,6 @@ export const DiscoverScreen: React.FC<DiscoverScreenProps> = ({ onLivePress }) =
 
   const handleCategoryPress = (category: string) => {
     setSelectedCategory(category);
-    // Filter videos based on category
-    // This would typically fetch from an API
   };
 
   const formatVideosForMasonry = () => {
@@ -137,28 +156,32 @@ export const DiscoverScreen: React.FC<DiscoverScreenProps> = ({ onLivePress }) =
         </View>
 
         {/* Trending Challenges */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionIcon}>🔥</Text>
-            <Text style={styles.sectionTitle}>Trending Challenges</Text>
+        {challenges.length > 0 && (
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionIcon}>🔥</Text>
+              <Text style={styles.sectionTitle}>Trending Challenges</Text>
+            </View>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.challengesScroll}>
+              {challenges.map((challenge) => (
+                <ChallengeItem key={challenge.id} item={challenge} onPress={handleChallengePress} />
+              ))}
+            </ScrollView>
           </View>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.challengesScroll}>
-            {mockChallenges.map((challenge) => (
-              <ChallengeItem key={challenge.id} item={challenge} onPress={handleChallengePress} />
-            ))}
-          </ScrollView>
-        </View>
+        )}
 
         {/* Recommended Videos */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Recommended for You</Text>
-          <FlatList
-            data={formatVideosForMasonry()}
-            renderItem={renderMasonryRow}
-            keyExtractor={(item, index) => index.toString()}
-            scrollEnabled={false}
-          />
-        </View>
+        {videos.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Recommended for You</Text>
+            <FlatList
+              data={formatVideosForMasonry()}
+              renderItem={renderMasonryRow}
+              keyExtractor={(item, index) => index.toString()}
+              scrollEnabled={false}
+            />
+          </View>
+        )}
 
         {/* Bottom padding for navigation */}
         <View style={styles.bottomPadding} />

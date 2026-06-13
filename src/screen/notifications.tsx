@@ -12,15 +12,46 @@ import {
   ScrollView,
   Platform,
 } from 'react-native';
-import { Notification, FilterType, filters, mockNotifications } from './NotificationItems';
-
 const { width, height: _height } = Dimensions.get('window');
 const isSmallScreen = width < 380;
 
-export const InboxScreen: React.FC<{ onLivePress?: () => void }> = ({ onLivePress }) => {
+import * as notificationService from '../services/notificationService';
+
+export const InboxScreen: React.FC<{ onLivePress?: () => void, userId?: string }> = ({ onLivePress, userId }) => {
   const [activeFilter, setActiveFilter] = useState<string>('likes');
-  const [notifications] = useState<Notification[]>(mockNotifications);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isFollowing, setIsFollowing] = useState<{ [key: string]: boolean }>({});
+
+  useEffect(() => {
+    if (!userId) {
+      setNotifications([]);
+      return;
+    }
+    const loadNotifications = async () => {
+      try {
+        const data = await notificationService.chargerNotifications(userId);
+        if (data && data.length > 0) {
+          const mapped: Notification[] = data.map((n: any) => ({
+            id: n.id,
+            type: n.type,
+            username: n.data?.username || 'User',
+            userAvatar: n.data?.userAvatar || '',
+            content: n.data?.content || '',
+            timestamp: 'Just now', // Ideally format n.createdAt
+            thumbnail: n.data?.thumbnail || '',
+            isRead: n.isRead,
+          }));
+          setNotifications(mapped);
+        } else {
+          setNotifications([]);
+        }
+      } catch (err) {
+        console.log('Error loading notifications:', err);
+        setNotifications([]);
+      }
+    };
+    loadNotifications();
+  }, [userId]);
 
   // Format number with K/M
   const _formatNumber = (num: number): string => {

@@ -15,9 +15,45 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Video from 'react-native-video';
-import { VideoPost, VideoSlideProps, mockPosts } from './HomeItems';
+import {
+  uploadVideo,
+  chargerVideos,
+  chargerVideosByUser,
+  getVideo,
+  incrementViewCount,
+  deleteVideo
+} from '../services/videoService';
+import { likerVideo, estLike } from '../services/likeService';
+import { toggleFollow } from '../services/followService';
 
 const { width, height } = Dimensions.get('window');
+
+export interface VideoPost {
+  id: string;
+  userId?: string;
+  username: string;
+  avatar: string;
+  videoUrl: string;
+  thumbnail: string;
+  description: string;
+  hashtags: string[];
+  musicTitle: string;
+  likes: number;
+  comments: number;
+  bookmarks: number;
+  shares: number;
+  isLiked: boolean;
+  isBookmarked: boolean;
+}
+
+export interface VideoSlideProps {
+  post: VideoPost;
+  onLike: (id: string) => void;
+  onBookmark: (id: string) => void;
+  onShare: (id: string) => void;
+  onComment: (id: string) => void;
+  onFollow: (username: string) => void;
+}
 
 // Video Slide Component
 const VideoSlide: React.FC<VideoSlideProps> = ({
@@ -110,7 +146,7 @@ const VideoSlide: React.FC<VideoSlideProps> = ({
           <Image source={{ uri: post.avatar }} style={styles.avatar} />
           <Pressable
             style={styles.followButton}
-            onPress={() => onFollow(post.username)}
+            onPress={() => onFollow(post.userId || post.username)}
           >
             <Text style={styles.followIcon}>+</Text>
           </Pressable>
@@ -168,9 +204,11 @@ const VideoSlide: React.FC<VideoSlideProps> = ({
           <Text style={styles.username}>{post.username}</Text>
           <Text style={styles.description}>
             {post.description}{' '}
-            <Text style={styles.hashtags}>
-              {post.hashtags.join(' ')}
-            </Text>
+            {Array.isArray(post.hashtags)&& post.hashtags.length> 0 && (
+              <Text style={styles.hashtags}>
+                {post.hashtags.join('')}
+              </Text>
+            )}
           </Text>
         </View>
         
@@ -196,23 +234,24 @@ const VideoSlide: React.FC<VideoSlideProps> = ({
 // Main Feed Component
 interface VideoFeedScreenProps {
   onLivePress?: () => void;
+  userId?: string;
 }
 
-export const VideoFeedScreen: React.FC<VideoFeedScreenProps> = ({ onLivePress }) => {
-  const [posts, setPosts] = useState<VideoPost[]>(mockPosts);
+export const VideoFeedScreen: React.FC<VideoFeedScreenProps> = ({ onLivePress, userId }) => {
+  const [posts, setPosts] = useState<VideoPost[]>([]);
   const [activeTab, setActiveTab] = useState<'forYou' | 'following'>('forYou');
   const flatListRef = useRef<FlatList>(null);
   const scrollY = useRef(new Animated.Value(0)).current;
 
-  // Load videos from Firestore (with mock fallback)
+  // Load videos from Firestore
   useEffect(() => {
     const loadVideos = async () => {
       try {
-        const { chargerVideos } = require('../services/videoService');
         const videos = await chargerVideos(20);
         if (videos && videos.length > 0) {
           const mapped: VideoPost[] = videos.map((v: any) => ({
             id: v.id,
+            userId: v.userId,
             username: `@${v.userId?.substring(0, 8) || 'user'}`,
             avatar: '',
             videoUrl: v.videoUrl || '',
@@ -228,15 +267,25 @@ export const VideoFeedScreen: React.FC<VideoFeedScreenProps> = ({ onLivePress })
             isBookmarked: false,
           }));
           setPosts(mapped);
+        } else {
+          setPosts([]);
         }
-      } catch (_e) {
-        console.log('Using mock data for feed');
+      } catch (err) {
+        console.log('Error loading feed:', err);
+        setPosts([]);
       }
     };
     loadVideos();
   }, []);
 
-  const handleLike = (id: string) => {
+  const handleLike = async (id: string) => {
+    if (userId) {
+      try {
+        await likerVideo(userId, id);
+      } catch (err) {
+        console.log('Error liking video:', err);
+      }
+    }
     setPosts(prev =>
       prev.map(post =>
         post.id === id
@@ -264,8 +313,17 @@ export const VideoFeedScreen: React.FC<VideoFeedScreenProps> = ({ onLivePress })
     console.log('Comment on post:', id);
   };
 
-  const handleFollow = (username: string) => {
-    console.log('Follow user:', username);
+  const handleFollow = async (followedIdOrUsername: string) => {
+    if (userId && !followedIdOrUsername.startsWith('@')) {
+      try {
+        await toggleFollow(userId, followedIdOrUsername);
+        console.log('Follow toggled successfully');
+      } catch (err) {
+        console.log('Follow error:', err);
+      }
+    } else {
+      console.log('Follow user:', followedIdOrUsername);
+    }
   };
 
   const renderItem = ({ item }: { item: VideoPost }) => (

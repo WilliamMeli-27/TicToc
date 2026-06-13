@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   SafeAreaView,
   View,
@@ -12,17 +12,30 @@ import {
   ScrollView,
   Platform,
 } from 'react-native';
-import {
-  Post,
-  TabType,
-  userProfile,
-  mockPosts,
-  mockPrivatePosts,
-  mockSavedPosts,
-} from './ProfileItems';
+import * as userService from '../services/userService';
+import * as videoService from '../services/videoService';
 
 const { width, height: _height } = Dimensions.get('window');
 const isSmallScreen = width < 380;
+
+export type TabType = 'posts' | 'private' | 'saved';
+
+export interface Post {
+  id: string;
+  imageUrl: string;
+  views: number;
+}
+
+export const DEFAULT_USER_PROFILE = {
+  username: '',
+  avatar: 'https://picsum.photos/200',
+  bio: '',
+  stats: {
+    followers: 0,
+    following: 0,
+    likes: 0
+  }
+};
 
 interface ProfileScreenProps {
   onLivePress?: () => void;
@@ -30,9 +43,60 @@ interface ProfileScreenProps {
   userId?: string;
 }
 
-export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLivePress, onLogout }) => {
+export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLivePress, onLogout, userId }) => {
   const [activeTab, setActiveTab] = useState<TabType>('posts');
   const [isFollowing, setIsFollowing] = useState(false);
+  const [profile, setProfile] = useState(DEFAULT_USER_PROFILE);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [privatePosts, setPrivatePosts] = useState<Post[]>([]);
+  const [savedPosts, setSavedPosts] = useState<Post[]>([]);
+  const [_loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!userId) {
+      setProfile(DEFAULT_USER_PROFILE);
+      setPosts([]);
+      setPrivatePosts([]);
+      setSavedPosts([]);
+      return;
+    }
+    const loadProfileData = async () => {
+      setLoading(true);
+      try {
+        const uData = await userService.getUser(userId);
+        if (uData) {
+          setProfile({
+            username: uData.displayName || `@${uData.username}`,
+            avatar: uData.avatar || 'https://picsum.photos/200',
+            bio: uData.bio || 'No bio yet.',
+            stats: {
+              followers: uData.followersCount || 0,
+              following: uData.followingCount || 0,
+              likes: uData.likesCount || 0
+            }
+          });
+        }
+        
+        const userVideos = await videoService.chargerVideosByUser(userId);
+        if (userVideos && userVideos.length > 0) {
+          const mapped = userVideos.map((v: any) => ({
+            id: v.id,
+            imageUrl: v.thumbnail || 'https://picsum.photos/200/300',
+            views: v.viewsCount || 0
+          }));
+          setPosts(mapped);
+        } else {
+          setPosts([]);
+        }
+      } catch (err) {
+        console.log('Error loading profile/videos:', err);
+        setPosts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadProfileData();
+  }, [userId]);
 
   // Format number with K/M
   const formatNumber = (num: number): string => {
@@ -45,13 +109,13 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLivePress, onLog
   const getCurrentPosts = (): Post[] => {
     switch (activeTab) {
       case 'posts':
-        return mockPosts;
+        return posts;
       case 'private':
-        return mockPrivatePosts;
+        return privatePosts;
       case 'saved':
-        return mockSavedPosts;
+        return savedPosts;
       default:
-        return mockPosts;
+        return posts;
     }
   };
 
@@ -119,7 +183,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLivePress, onLog
           <View style={styles.avatarContainer}>
             <View style={styles.avatarBorder}>
               <Image 
-                source={{ uri: userProfile.avatar }}
+                source={{ uri: profile.avatar }}
                 style={styles.avatar}
               />
             </View>
@@ -129,23 +193,23 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLivePress, onLog
           </View>
 
           {/* User Info */}
-          <Text style={styles.username}>{userProfile.username}</Text>
-          <Text style={styles.bio}>{userProfile.bio}</Text>
+          <Text style={styles.username}>{profile.username}</Text>
+          <Text style={styles.bio}>{profile.bio}</Text>
 
           {/* Stats Bar */}
           <View style={styles.statsContainer}>
             <View style={styles.statItem}>
-              <Text style={styles.statValue}>{formatNumber(userProfile.stats.followers)}</Text>
+              <Text style={styles.statValue}>{formatNumber(profile.stats.followers)}</Text>
               <Text style={styles.statLabel}>Followers</Text>
             </View>
             <View style={styles.statDivider} />
             <View style={styles.statItem}>
-              <Text style={styles.statValue}>{formatNumber(userProfile.stats.following)}</Text>
+              <Text style={styles.statValue}>{formatNumber(profile.stats.following)}</Text>
               <Text style={styles.statLabel}>Following</Text>
             </View>
             <View style={styles.statDivider} />
             <View style={styles.statItem}>
-              <Text style={styles.statValue}>{formatNumber(userProfile.stats.likes)}</Text>
+              <Text style={styles.statValue}>{formatNumber(profile.stats.likes)}</Text>
               <Text style={styles.statLabel}>Likes</Text>
             </View>
           </View>

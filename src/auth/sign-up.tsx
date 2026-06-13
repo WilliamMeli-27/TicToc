@@ -31,7 +31,7 @@ interface StrengthConfig {
 
 interface SignUpScreenProps {
   onLogin?: () => void;
-  onSignUpSuccess?: (email: string, password: string) => void;
+  onSignUpSuccess?: (email: string, password: string, username: string, fullName: string) => void;
 }
 
 export const SignUpScreen: React.FC<SignUpScreenProps> = ({ onLogin, onSignUpSuccess }) => {
@@ -79,7 +79,12 @@ export const SignUpScreen: React.FC<SignUpScreenProps> = ({ onLogin, onSignUpSuc
   };
 
   // Handle form submission
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    if (!email || !password || !username || !fullName) {
+      Alert.alert('Erreur', 'Veuillez remplir tous les champs');
+      return;
+    }
+
     setIsLoading(true);
     
     // Button animation
@@ -96,12 +101,13 @@ export const SignUpScreen: React.FC<SignUpScreenProps> = ({ onLogin, onSignUpSuc
       }),
     ]).start();
 
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      await onSignUpSuccess?.(email, password, username, fullName);
+    } catch (error) {
+      // Error handled in App.tsx
+    } finally {
       setIsLoading(false);
-      console.log('Form submitted:', { fullName, email, username, password });
-      onSignUpSuccess?.(email, password);
-    }, 1500);
+    }
   };
 
   // Render strength meter segments

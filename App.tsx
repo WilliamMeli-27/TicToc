@@ -15,6 +15,19 @@ import { auth } from './src/lib/firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { inscription, connexion, deconnexion } from './src/services/authService';
 
+// Import screens directly
+import HomeScreen from './src/screen/home';
+import { DiscoverScreen } from './src/screen/discover';
+import { CameraScreen } from './src/screen/video-record';
+import { VideoEditorScreen } from './src/screen/video-edit';
+import { InboxScreen } from './src/screen/notifications';
+import { ProfileScreen } from './src/screen/profile';
+import { LiveStreamScreen } from './src/screen/live';
+import LoginScreen from './src/auth/login';
+import SignUpScreen from './src/auth/sign-up';
+import { ResetPasswordScreen } from './src/auth/forget-password';
+import { OTPScreen } from './src/auth/verification-code';
+
 export type AppTabType = TabType | 'live' | 'video-edit';
 export type AuthScreenType = 'signup' | 'login' | 'forget-password' | 'verification-code';
 
@@ -503,6 +516,7 @@ export const TouchSplashScreen: React.FC<SplashScreenProps> = (props) => {
   );
 };
 
+// Verification d'un compte deja existant dans l'appareil
 const App: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -519,11 +533,12 @@ const App: React.FC = () => {
     return unsubscribe;
   }, []);
 
-  const handleSignUp = async (email: string, password: string, username?: string) => {
+  const handleSignUp = async (email: string, password: string, username: string) => {
     try {
-      await inscription(email, password, username || email.split('@')[0]);
+      await inscription(email, password, username);
     } catch (error: any) {
       Alert.alert('Erreur', error.message || 'Inscription échouée');
+      throw error;
     }
   };
 
@@ -549,6 +564,7 @@ const App: React.FC = () => {
       case 'login': {
         const mod = require('./src/auth/login');
         const LoginScreen = mod.LoginScreen ?? mod.default;
+      case 'login':
         return (
           <LoginScreen
             onLoginSuccess={handleLogin}
@@ -556,20 +572,14 @@ const App: React.FC = () => {
             onSignUp={() => setAuthScreen('signup')}
           />
         );
-      }
-      case 'forget-password': {
-        const mod = require('./src/auth/forget-password');
-        const ResetPasswordScreen = mod.ResetPasswordScreen ?? mod.default;
+      case 'forget-password':
         return (
           <ResetPasswordScreen
             onBackToLogin={() => setAuthScreen('login')}
             onResetSuccess={() => setAuthScreen('login')}
           />
         );
-      }
-      case 'verification-code': {
-        const mod = require('./src/auth/verification-code');
-        const OTPScreen = mod.OTPScreen ?? mod.default;
+      case 'verification-code':
         return (
           <OTPScreen
             onVerify={async () => true}
@@ -578,18 +588,14 @@ const App: React.FC = () => {
             onSuccess={() => {}}
           />
         );
-      }
       case 'signup':
-      default: {
-        const mod = require('./src/auth/sign-up');
-        const SignUpScreen = mod.SignUpScreen ?? mod.default;
+      default:
         return (
           <SignUpScreen
             onLogin={() => setAuthScreen('login')}
             onSignUpSuccess={handleSignUp}
           />
         );
-      }
     }
   };
 
@@ -598,58 +604,30 @@ const App: React.FC = () => {
 
     switch (activeTab) {
       case 'live':
-        {
-          const mod = require('./src/screen/live');
-          const LiveStreamScreen = mod.LiveStreamScreen ?? mod.default;
-          return (
-            <LiveStreamScreen 
-              onBackPress={() => setActiveTab('home')}
-            />
-          );
-        }
+        return (
+          <LiveStreamScreen 
+            onBackPress={() => setActiveTab('home')}
+          />
+        );
       case 'discover':
-        {
-          const mod = require('./src/screen/discover');
-          const DiscoverScreen = mod.DiscoverScreen ?? mod.default;
-          return <DiscoverScreen onLivePress={handleLivePress} />;
-        }
+        return <DiscoverScreen onLivePress={handleLivePress} />;
       case 'create':
-        {
-          const mod = require('./src/screen/video-record');
-          const CameraScreen = mod.CameraScreen ?? mod.default;
-          return <CameraScreen onOpenEditor={() => setActiveTab('video-edit')} />;
-        }
+        return <CameraScreen onOpenEditor={() => setActiveTab('video-edit')} />;
       case 'video-edit':
-        {
-          const mod = require('./src/screen/video-edit');
-          const VideoEditorScreen = mod.VideoEditorScreen ?? mod.default;
-          return <VideoEditorScreen />;
-        }
+        return <VideoEditorScreen />;
       case 'inbox':
-        {
-          const mod = require('./src/screen/notifications');
-          const InboxScreen = mod.InboxScreen ?? mod.default;
-          return <InboxScreen onLivePress={handleLivePress} />;
-        }
+        return <InboxScreen onLivePress={handleLivePress} userId={currentUser?.uid} />;
       case 'profile':
-        {
-          const mod = require('./src/screen/profile');
-          const ProfileScreen = mod.ProfileScreen ?? mod.default;
-          return (
-            <ProfileScreen
-              onLivePress={handleLivePress}
-              onLogout={handleLogout}
-              userId={currentUser?.uid}
-            />
-          );
-        }
+        return (
+          <ProfileScreen
+            onLivePress={handleLivePress}
+            onLogout={handleLogout}
+            userId={currentUser?.uid}
+          />
+        );
       case 'home':
       default:
-        {
-          const mod = require('./src/screen/home');
-          const HomeScreen = mod.HomeScreen ?? mod.default;
-          return <HomeScreen onLivePress={handleLivePress} userId={currentUser?.uid} />;
-        }
+        return <HomeScreen onLivePress={handleLivePress} userId={currentUser?.uid} />;
     }
   };
 

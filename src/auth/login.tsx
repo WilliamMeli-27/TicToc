@@ -67,9 +67,9 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
   }, [buttonGlowAnim, fadeAnim]);
 
   // Handle login submission
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!email || !password) {
-      // Show error message
+      Alert.alert('Erreur', 'Veuillez remplir tous les champs');
       return;
     }
 
@@ -89,11 +89,13 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
       }),
     ]).start();
 
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      await onLoginSuccess?.(email, password);
+    } catch (error) {
+      // Error is handled in App.tsx via Alert
+    } finally {
       setIsLoading(false);
-      onLoginSuccess?.(email, password);
-    }, 1500);
+    }
   };
 
   // Handle touch for background effect
