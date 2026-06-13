@@ -547,6 +547,7 @@ const App: React.FC = () => {
       await connexion(email, password);
     } catch (error: any) {
       Alert.alert('Erreur', error.message || 'Connexion échouée');
+      throw error;
     }
   };
 
@@ -561,9 +562,6 @@ const App: React.FC = () => {
 
   const renderAuthScreen = () => {
     switch (authScreen) {
-      case 'login': {
-        const mod = require('./src/auth/login');
-        const LoginScreen = mod.LoginScreen ?? mod.default;
       case 'login':
         return (
           <LoginScreen
