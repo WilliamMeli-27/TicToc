@@ -15,6 +15,14 @@ import LinearGradient from 'react-native-linear-gradient';
 import { Camera, useCameraDevices } from 'react-native-vision-camera';
 const { width: _width, height: _height } = Dimensions.get('window');
 
+// Types
+type ModeType = 'VIDEO' | 'PHOTO' | 'LIVE';
+
+const cameraAssets = {
+  fallback: 'https://picsum.photos/400/800',
+  uploadPreview: 'https://picsum.photos/50',
+};
+
 interface CameraScreenProps {
   onOpenEditor?: () => void;
 }

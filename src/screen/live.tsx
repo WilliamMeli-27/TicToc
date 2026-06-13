@@ -16,6 +16,39 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 const { width: _width, height: _height } = Dimensions.get('window');
 
+// ── Type Definitions ──────────────────────────────────
+interface Comment {
+  id: string;
+  username: string;
+  text: string;
+  timestamp: Date;
+  isSystem?: boolean;
+  isTopFan?: boolean;
+}
+
+interface Reaction {
+  id: string;
+  icon: string;
+  color: string;
+  x: number;
+}
+
+// ── Constants ──────────────────────────────────────────
+const REACTION_ICONS = [
+  { icon: '❤️', color: '#ff4b89' },
+  { icon: '🔥', color: '#ff6b35' },
+  { icon: '😍', color: '#ffb1c3' },
+  { icon: '👏', color: '#a2ef00' },
+  { icon: '💎', color: '#00f0ff' },
+  { icon: '🎉', color: '#ff4b89' },
+];
+
+const hostInfoMock = {
+  username: 'CyberNova',
+  followers: '2.4M followers',
+  avatar: 'https://picsum.photos/100',
+};
+
 export const LiveStreamScreen: React.FC<{ onBackPress?: () => void }> = ({ onBackPress }) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [inputText, setInputText] = useState('');
@@ -205,7 +238,7 @@ export const LiveStreamScreen: React.FC<{ onBackPress?: () => void }> = ({ onBac
       {/* Video Background */}
       <View style={styles.backgroundContainer}>
         <Image 
-          source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBcGqQ7XtTVjrEOoufNmrM0tpFEEjniFIMkjgQ1aBK2uDJxy58r5cQaRSt5gkZgtDe9ybNhrWzjr1KkF4TzlNv-sI-FZ2Zgm9NpucPz6PlKC4eoKIL8amUVeNg5S1I7TBv7Fm8Mg7_8570lKJnTp7uds5BX9VBuQSxd-sOvf6n8-05Bvaohc1bXzSuWexk7NLf8tdKo6X_3q6MEoX_TLh7LVWKBQi23PUj3WR85k5R1dp6TvPts1nU2wpKlDzONUX-EYlkCxeMoPQXk' }}
+          source={{ uri: 'https://picsum.photos/400/800' }}
           style={styles.backgroundImage}
           resizeMode="cover"
         />

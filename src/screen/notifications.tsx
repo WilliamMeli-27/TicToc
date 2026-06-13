@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   SafeAreaView,
   View,
@@ -16,6 +16,35 @@ const { width, height: _height } = Dimensions.get('window');
 const isSmallScreen = width < 380;
 
 import * as notificationService from '../services/notificationService';
+
+// ── Type Definitions ──────────────────────────────────
+interface Notification {
+  id: string;
+  type: 'like' | 'follow' | 'comment' | 'mention' | 'system';
+  username?: string;
+  userAvatar?: string;
+  content: string;
+  timestamp: string;
+  thumbnail?: string;
+  isRead?: boolean;
+  userCount?: number;
+}
+
+interface FilterType {
+  id: string;
+  icon: string;
+  label: string;
+  activeColor: string;
+}
+
+// ── Constants ──────────────────────────────────────────
+const filters: FilterType[] = [
+  { id: 'likes', icon: '❤️', label: 'Likes', activeColor: '#ff4b89' },
+  { id: 'follows', icon: '👤', label: 'Follows', activeColor: '#a2ef00' },
+  { id: 'comments', icon: '💬', label: 'Comments', activeColor: '#00f0ff' },
+  { id: 'mentions', icon: '@', label: 'Mentions', activeColor: '#7df4ff' },
+  { id: 'system', icon: '✨', label: 'System', activeColor: '#ffb1c3' },
+];
 
 export const InboxScreen: React.FC<{ onLivePress?: () => void, userId?: string }> = ({ onLivePress, userId }) => {
   const [activeFilter, setActiveFilter] = useState<string>('likes');
@@ -61,8 +90,8 @@ export const InboxScreen: React.FC<{ onLivePress?: () => void, userId?: string }
   };
 
   // Handle follow button press
-  const handleFollow = (userId: string) => {
-    setIsFollowing(prev => ({ ...prev, [userId]: !prev[userId] }));
+  const handleFollow = (followUserId: string) => {
+    setIsFollowing(prev => ({ ...prev, [followUserId]: !prev[followUserId] }));
   };
 
   // Handle notification press
@@ -196,7 +225,7 @@ export const InboxScreen: React.FC<{ onLivePress?: () => void, userId?: string }
 
   // Group notifications by date
   const todayNotifications = notifications.filter(n => 
-    n.timestamp === '2h' || n.timestamp === '5h' || n.timestamp === '8h'
+    n.timestamp === '2h' || n.timestamp === '5h' || n.timestamp === '8h' || n.timestamp === 'Just now'
   );
   const weekNotifications = notifications.filter(n => 
     n.timestamp === '2d' || n.timestamp === '4d' || n.timestamp === '6d'

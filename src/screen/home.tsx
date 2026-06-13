@@ -16,12 +16,7 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import Video from 'react-native-video';
 import {
-  uploadVideo,
   chargerVideos,
-  chargerVideosByUser,
-  getVideo,
-  incrementViewCount,
-  deleteVideo
 } from '../services/videoService';
 import { likerVideo, estLike } from '../services/likeService';
 import { toggleFollow } from '../services/followService';

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   SafeAreaView,
   View,
@@ -11,6 +11,7 @@ import {
   StatusBar,
   ScrollView,
   Platform,
+  Image,
 } from 'react-native';
 
 
@@ -19,6 +20,48 @@ const isSmallScreen = width < 380;
 
 
 import * as videoService from '../services/videoService';
+
+// Categories for discover
+const CATEGORIES = ['Trending', 'Gaming', 'Music', 'Fashion', 'Sports', 'Art'];
+
+// Types
+interface VideoItemType {
+  id: string;
+  thumbnail: string;
+  views: number;
+  creator: {
+    username: string;
+    avatar: string;
+  };
+}
+
+interface ChallengeItemType {
+  id: string;
+  title: string;
+  hashtag: string;
+  videoCount: string;
+  color: string;
+}
+
+// Sub-components
+const VideoItem: React.FC<{ item: VideoItemType; onPress: (id: string) => void }> = ({ item, onPress }) => (
+  <Pressable style={styles.videoItem} onPress={() => onPress(item.id)}>
+    <Image source={{ uri: item.thumbnail || 'https://picsum.photos/200/300' }} style={styles.videoThumbnail} />
+    <View style={styles.videoOverlay}>
+      <Text style={styles.videoViews}>👁️ {item.views >= 1000 ? `${(item.views / 1000).toFixed(1)}K` : item.views}</Text>
+      <Text style={styles.videoCreator}>{item.creator.username}</Text>
+    </View>
+  </Pressable>
+);
+
+const ChallengeItem: React.FC<{ item: ChallengeItemType; onPress: (id: string) => void }> = ({ item, onPress }) => (
+  <Pressable style={[styles.challengeItem, { backgroundColor: item.color }]} onPress={() => onPress(item.id)}>
+    <Text style={styles.challengeIcon}>#</Text>
+    <Text style={styles.challengeTitle}>{item.title}</Text>
+    <Text style={styles.challengeHashtag}>{item.hashtag}</Text>
+    <Text style={styles.challengeCount}>{item.videoCount} videos</Text>
+  </Pressable>
+);
 
 // Main Discover Component
 interface DiscoverScreenProps {
