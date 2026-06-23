@@ -1,31 +1,35 @@
 import { db } from '../lib/firebase'
-import {
-  doc, setDoc, deleteDoc,
-  getDoc, updateDoc, increment,
-  serverTimestamp
-} from 'firebase/firestore'
+import firestore from '@react-native-firebase/firestore';
 
 // Suivre / Ne plus suivre
 export const toggleFollow = async (followerId, followedId) => {
   const followId  = `${followerId}_${followedId}`
-  const followRef = doc(db, 'follows', followId)
-  const followDoc = await getDoc(followRef)
+  const followRef = db.collection('follows').doc(followId)
+  const followDoc = await followRef.get()
 
-  if (followDoc.exists()) {
+  if (followDoc.exists) {
     // Déjà abonné → se désabonner
-    await deleteDoc(followRef)
-    await updateDoc(doc(db, 'users', followedId), { followersCount: increment(-1) })
-    await updateDoc(doc(db, 'users', followerId), { followingCount: increment(-1) })
+    await followRef.delete()
+    await db.collection('users').doc(followedId).update({ 
+      followersCount: firestore.FieldValue.increment(-1) 
+    })
+    await db.collection('users').doc(followerId).update({ 
+      followingCount: firestore.FieldValue.increment(-1) 
+    })
     return false  // unfollowed
   } else {
     // Pas abonné → s'abonner
-    await setDoc(followRef, {
+    await followRef.set({
       followerId,
       followedId,
-      createdAt: serverTimestamp()
+      createdAt: firestore.FieldValue.serverTimestamp()
     })
-    await updateDoc(doc(db, 'users', followedId), { followersCount: increment(1) })
-    await updateDoc(doc(db, 'users', followerId), { followingCount: increment(1) })
+    await db.collection('users').doc(followedId).update({ 
+      followersCount: firestore.FieldValue.increment(1) 
+    })
+    await db.collection('users').doc(followerId).update({ 
+      followingCount: firestore.FieldValue.increment(1) 
+    })
     return true   // followed
   }
 }

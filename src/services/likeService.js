@@ -1,30 +1,35 @@
 import { db } from '../lib/firebase'
-import {
-  doc, setDoc, deleteDoc,
-  getDoc, updateDoc, increment
-} from 'firebase/firestore'
+import firestore from '@react-native-firebase/firestore';
 
 // Liker une vidéo
 export const likerVideo = async (userId, videoId) => {
   const likeId  = `${userId}_${videoId}`
-  const likeRef = doc(db, 'likes', likeId)
-  const likeDoc = await getDoc(likeRef)
+  const likeRef = db.collection('likes').doc(likeId)
+  const likeDoc = await likeRef.get()
 
-  if (likeDoc.exists()) {
+  if (likeDoc.exists) {
     // Déjà liké → on retire le like
-    await deleteDoc(likeRef)
-    await updateDoc(doc(db, 'videos', videoId), { likesCount: increment(-1) })
+    await likeRef.delete()
+    await db.collection('videos').doc(videoId).update({ 
+      likesCount: firestore.FieldValue.increment(-1) 
+    })
     return false  // unliked
   } else {
     // Pas encore liké → on ajoute
-    await setDoc(likeRef, { userId, videoId, createdAt: new Date() })
-    await updateDoc(doc(db, 'videos', videoId), { likesCount: increment(1) })
+    await likeRef.set({ 
+      userId, 
+      videoId, 
+      createdAt: firestore.FieldValue.serverTimestamp() 
+    })
+    await db.collection('videos').doc(videoId).update({ 
+      likesCount: firestore.FieldValue.increment(1) 
+    })
     return true   // liked
   }
 }
 
 // Vérifier si l'utilisateur a liké une vidéo
 export const estLike = async (userId, videoId) => {
-  const likeDoc = await getDoc(doc(db, 'likes', `${userId}_${videoId}`))
-  return likeDoc.exists()
+  const likeDoc = await db.collection('likes').doc(`${userId}_${videoId}`).get()
+  return likeDoc.exists
 }

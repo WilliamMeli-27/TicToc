@@ -230,9 +230,10 @@ const VideoSlide: React.FC<VideoSlideProps> = ({
 interface VideoFeedScreenProps {
   onLivePress?: () => void;
   userId?: string;
+  onLoginPress?: () => void;
 }
 
-export const VideoFeedScreen: React.FC<VideoFeedScreenProps> = ({ onLivePress, userId }) => {
+export const VideoFeedScreen: React.FC<VideoFeedScreenProps> = ({ onLivePress, userId, onLoginPress }) => {
   const [posts, setPosts] = useState<VideoPost[]>([]);
   const [activeTab, setActiveTab] = useState<'forYou' | 'following'>('forYou');
   const flatListRef = useRef<FlatList>(null);
@@ -247,26 +248,27 @@ export const VideoFeedScreen: React.FC<VideoFeedScreenProps> = ({ onLivePress, u
           const mapped: VideoPost[] = videos.map((v: any) => ({
             id: v.id,
             userId: v.userId,
-            username: `@${v.userId?.substring(0, 8) || 'user'}`,
-            avatar: '',
+            username: v.username || `@${v.userId?.substring(0, 8) || 'user'}`,
+            avatar: v.userAvatar || 'https://picsum.photos/50',
             videoUrl: v.videoUrl || '',
-            thumbnail: v.thumbnail || '',
+            thumbnail: v.thumbnail || 'https://picsum.photos/400/600',
             description: v.description || '',
             hashtags: v.hashtags || [],
-            musicTitle: '',
+            musicTitle: v.musicTitle || 'Original Sound',
             likes: v.likesCount || 0,
             comments: v.commentsCount || 0,
-            bookmarks: 0,
+            bookmarks: v.bookmarksCount || 0,
             shares: v.sharesCount || 0,
             isLiked: false,
             isBookmarked: false,
           }));
           setPosts(mapped);
         } else {
+          console.log('No videos found in Firestore');
           setPosts([]);
         }
       } catch (err) {
-        console.log('Error loading feed:', err);
+        console.error('Error loading feed:', err);
         setPosts([]);
       }
     };
@@ -354,9 +356,18 @@ export const VideoFeedScreen: React.FC<VideoFeedScreenProps> = ({ onLivePress, u
           </Pressable>
         </View>
         <View style={styles.headerRight}>
-          <Pressable onPress={onLivePress}>
-            <Text style={styles.liveIcon}>📺</Text>
-          </Pressable>
+          {!userId ? (
+            <Pressable 
+              onPress={onLoginPress}
+              style={{ backgroundColor: '#00f0ff', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16 }}
+            >
+              <Text style={{ color: '#00363a', fontWeight: 'bold', fontSize: 12 }}>LOGIN</Text>
+            </Pressable>
+          ) : (
+            <Pressable onPress={onLivePress}>
+              <Text style={styles.liveIcon}>📺</Text>
+            </Pressable>
+          )}
         </View>
       </View>
       

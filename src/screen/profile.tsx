@@ -26,6 +26,17 @@ export interface Post {
   views: number;
 }
 
+interface UserData {
+  id: string;
+  displayName?: string;
+  username?: string;
+  avatar?: string;
+  bio?: string;
+  followersCount?: number;
+  followingCount?: number;
+  likesCount?: number;
+}
+
 export const DEFAULT_USER_PROFILE = {
   username: '',
   avatar: 'https://picsum.photos/200',
@@ -63,7 +74,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLivePress, onLog
     const loadProfileData = async () => {
       setLoading(true);
       try {
-        const uData = await userService.getUser(userId);
+        const uData = (await userService.getUser(userId)) as UserData | null;
         if (uData) {
           setProfile({
             username: uData.displayName || `@${uData.username}`,

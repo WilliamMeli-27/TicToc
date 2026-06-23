@@ -1,25 +1,25 @@
 import { db } from '../lib/firebase'
-import { doc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore'
+import firestore from '@react-native-firebase/firestore';
 
 // Get user profile
 export const getUser = async (userId) => {
-  const snapshot = await getDoc(doc(db, 'users', userId))
-  if (!snapshot.exists()) return null
+  const snapshot = await db.collection('users').doc(userId).get()
+  if (!snapshot.exists) return null
   return { id: snapshot.id, ...snapshot.data() }
 }
 
 // Update user profile
 export const updateUser = async (userId, data) => {
-  await updateDoc(doc(db, 'users', userId), {
+  await db.collection('users').doc(userId).update({
     ...data,
-    updatedAt: serverTimestamp()
+    updatedAt: firestore.FieldValue.serverTimestamp()
   })
 }
 
 // Update avatar URL
 export const updateAvatar = async (userId, avatarUrl) => {
-  await updateDoc(doc(db, 'users', userId), {
+  await db.collection('users').doc(userId).update({
     avatar: avatarUrl,
-    updatedAt: serverTimestamp()
+    updatedAt: firestore.FieldValue.serverTimestamp()
   })
 }

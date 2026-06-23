@@ -408,6 +408,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     overflow: 'hidden',
     position: 'relative',
+    height: 200,
   },
   videoThumbnail: {
     width: '100%',
@@ -415,10 +416,44 @@ const styles = StyleSheet.create({
   },
   videoOverlay: {
     position: 'absolute',
-    top: 0,
+    bottom: 0,
     left: 0,
     right: 0,
-    bottom: 0,
+    padding: 12,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+  },
+  videoViews: {
+    fontSize: 12,
+    color: '#ffffff',
+    fontWeight: 'bold',
+  },
+  videoCreator: {
+    fontSize: 10,
+    color: 'rgba(255,255,255,0.8)',
+    marginTop: 4,
+  },
+  challengeItem: {
+    width: 150,
+    padding: 16,
+    borderRadius: 12,
+    marginRight: 12,
+    justifyContent: 'center',
+  },
+  challengeIcon: {
+    fontSize: 24,
+    color: '#ffffff',
+    marginBottom: 8,
+  },
+  challengeHashtag: {
+    fontSize: 12,
+    color: 'rgba(255,255,255,0.9)',
+    marginBottom: 8,
+  },
+  challengeCount: {
+    fontSize: 10,
+    color: 'rgba(255,255,255,0.7)',
+    textTransform: 'uppercase',
+    fontWeight: 'bold',
   },
   viewCountBadge: {
     position: 'absolute',

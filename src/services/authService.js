@@ -1,39 +1,44 @@
 import { auth, db } from '../lib/firebase'
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut
-} from 'firebase/auth'
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore'
+import firestore from '@react-native-firebase/firestore';
 
 // Inscription
 export const inscription = async (email, password, username) => {
-  const { user } = await createUserWithEmailAndPassword(auth, email, password)
+  try {
+    const { user } = await auth().createUserWithEmailAndPassword(email, password)
 
-  // Créer le profil dans Firestore
-  await setDoc(doc(db, 'users', user.uid), {
-    uid:            user.uid,
-    email:          email,
-    username:       username.toLowerCase(),
-    displayName:    username,
-    avatar:         '',
-    bio:            '',
-    followersCount: 0,
-    followingCount: 0,
-    likesCount:     0,
-    videosCount:    0,
-    isVerified:     false,
-    createdAt:      serverTimestamp()
-  })
+    // Créer le profil dans Firestore
+    await db.collection('users').doc(user.uid).set({
+      uid:            user.uid,
+      email:          email,
+      username:       username.toLowerCase(),
+      displayName:    username,
+      avatar:         '',
+      bio:            '',
+      followersCount: 0,
+      followingCount: 0,
+      likesCount:     0,
+      videosCount:    0,
+      isVerified:     false,
+      createdAt:      firestore.FieldValue.serverTimestamp()
+    })
 
-  return user
+    return user
+  } catch (error) {
+    console.error('AuthService Inscription Error:', error);
+    throw error;
+  }
 }
 
 // Connexion
 export const connexion = async (email, password) => {
-  const { user } = await signInWithEmailAndPassword(auth, email, password)
-  return user
+  try {
+    const { user } = await auth().signInWithEmailAndPassword(email, password)
+    return user
+  } catch (error) {
+    console.error('AuthService Connexion Error:', error);
+    throw error;
+  }
 }
 
 // Déconnexion
-export const deconnexion = () => signOut(auth)
+export const deconnexion = () => auth().signOut()

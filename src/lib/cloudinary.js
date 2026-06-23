@@ -29,8 +29,10 @@ export const uploadVideoToCloudinary = async (videoUri, onProgress) => {
     })
 
     xhr.addEventListener('load', () => {
+      console.log('Cloudinary Response Status:', xhr.status);
       if (xhr.status >= 200 && xhr.status < 300) {
         const response = JSON.parse(xhr.responseText)
+        console.log('Cloudinary Upload Success:', response.secure_url);
         resolve({
           url: response.secure_url,
           publicId: response.public_id,
@@ -38,12 +40,15 @@ export const uploadVideoToCloudinary = async (videoUri, onProgress) => {
           thumbnail: getVideoThumbnail(response.secure_url),
         })
       } else {
-        reject(new Error(`Upload failed with status ${xhr.status}`))
+        const errorRes = xhr.responseText;
+        console.error('Cloudinary Upload Error Response:', errorRes);
+        reject(new Error(`Upload failed with status ${xhr.status}: ${errorRes}`))
       }
     })
 
-    xhr.addEventListener('error', () => {
-      reject(new Error('Upload failed'))
+    xhr.addEventListener('error', (err) => {
+      console.error('Cloudinary XHR Network Error:', err);
+      reject(new Error('Upload failed due to network error'))
     })
 
     xhr.open('POST', CLOUDINARY_UPLOAD_URL)

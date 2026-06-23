@@ -1,8 +1,13 @@
 <resources>
 
-    <!-- Base application theme. -->
+    <!-- Thème Splash — parent corrigé -->
+    <style name="SplashScreenTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="android:windowBackground">@color/splashscreen_bg</item>
+        <item name="colorPrimaryDark">@color/splashprimary</item>
+    </style>
+
+    <!-- Thème principal -->
     <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
-        <!-- Customize your theme here. -->
         <item name="android:editTextBackground">@drawable/rn_edit_text_material</item>
     </style>
 
